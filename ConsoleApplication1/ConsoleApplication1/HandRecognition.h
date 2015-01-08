@@ -4,6 +4,7 @@ class HandRecognition
 {
 public:
 	HandRecognition(CvCapture*);
+	HandRecognition(IplImage*);
 	~HandRecognition();
 
 
@@ -14,7 +15,7 @@ private:
 	CvMemStorage* mem;
 	CvMoments moments;
 	CvCapture *capture;
-	CvScalar max_thre = cvScalar(30, 128, 255, 255), min_thre = cvScalar(0, 0, 0, 0);
+	CvScalar max_thre = cvScalar(100, 255, 255, 255), min_thre = cvScalar(0, 100, 5, 0);
 	POINT centroid;
 	bool exist_contour;
 	char* window_name;
@@ -24,6 +25,7 @@ private:
 	void setCentroid();
 	void binaryzation();
 	void findHand();
+	void makeDistTransform();
 
 
 public:

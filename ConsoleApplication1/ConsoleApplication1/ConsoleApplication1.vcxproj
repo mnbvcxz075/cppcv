@@ -155,12 +155,17 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="HandMouse.cpp" />
     <ClCompile Include="HandRecognition.cpp" />
     <ClCompile Include="Source.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="HandMouse.h" />
     <ClInclude Include="HandRecognition.h" />
     <ClInclude Include="Setting.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="D:\desktop\img5.jpg" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

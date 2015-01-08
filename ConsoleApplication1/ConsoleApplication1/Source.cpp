@@ -31,11 +31,11 @@
 //#include <stdio.h>
 //#include "opencv\highgui.h"
 
-int main()
+int main(int argc,char**argv)
 {
 	// カメラからのビデオキャプチャを初期化する
 	CvCapture *videoCapture = cvCreateCameraCapture(0);
-	if (videoCapture == NULL)
+	if (videoCapture == NULL&&argv[1]==NULL)
 	{
 		return -1;
 	}
@@ -45,7 +45,9 @@ int main()
 	cvNamedWindow(MYWINDOW_NAME, CV_WINDOW_AUTOSIZE);
 	cvNamedWindow(MYWINDOW_NAME+'2', CV_WINDOW_AUTOSIZE);
 
-	HandRecognition *hand = new HandRecognition(videoCapture);
+	HandRecognition *hand = videoCapture!= NULL
+		?new HandRecognition(videoCapture)
+		:new HandRecognition(cvLoadImage(argv[1], CV_LOAD_IMAGE_COLOR));
 	// 何かキーが押下されるまで、ループをくり返す
 	while (cvWaitKey(1) == -1)
 	{
@@ -56,7 +58,7 @@ int main()
 		hand->update();
 		//cvShowImage(MYWINDOW_NAME, image);
 	}
-
+//	while (cvWaitKey(1) == -1){}
 
 	// ビデオキャプチャを解放する
 	cvReleaseCapture(&videoCapture);
