@@ -1,38 +1,68 @@
+#include"HandRecognition.h"
 
-#include "opencv\cv.h"
-#include "opencv\highgui.h"
-#include <ctype.h>
+//int main()
+//{
+//
+//	CvCapture *capture = cvCreateCameraCapture(0);
+//	if (capture == NULL)return -1;
+//
+//	cvNamedWindow(MYWINDOW_NAME, CV_WINDOW_AUTOSIZE);
+//
+////	HandRecognition *hand = new HandRecognition(capture);
+//	while (1){
+//		//hand->update();
+//		IplImage *image = cvQueryFrame(capture);
+//
+//		// ウィンドウに画像を表示する
+//		cvShowImage(MYWINDOW_NAME, image);
+//
+//	}
+////	hand->~HandRecognition();
+//	// ビデオキャプチャを解放する
+//	cvReleaseCapture(&capture);
+//
+//	// ウィンドウを破棄する
+//	cvDestroyWindow(MYWINDOW_NAME);
+//	return 0;
+//}
+//
 
-int
-main(int argc, char **argv)
+
+//#include <stdio.h>
+//#include "opencv\highgui.h"
+
+int main()
 {
-	CvCapture *capture = 0;
-	IplImage *frame = 0;
-	double w = 320, h = 240;
-	int c;
-
-	// (1)コマンド引数によって指定された番号のカメラに対するキャプチャ構造体を作成する
-	if (argc == 1 || (argc == 2 && strlen(argv[1]) == 1 && isdigit(argv[1][0])))
-		capture = cvCreateCameraCapture(argc == 2 ? argv[1][0] - '0' : 0);
-
-	/* この設定は，利用するカメラに依存する */
-	// (2)キャプチャサイズを設定する．
-	cvSetCaptureProperty(capture, CV_CAP_PROP_FRAME_WIDTH, w);
-	cvSetCaptureProperty(capture, CV_CAP_PROP_FRAME_HEIGHT, h);
-
-	cvNamedWindow("Capture", CV_WINDOW_AUTOSIZE);
-
-	// (3)カメラから画像をキャプチャする
-	while (1) {
-		frame = cvQueryFrame(capture);
-		cvShowImage("Capture", frame);
-		c = cvWaitKey(2);
-		if (c == '\x1b')
-			break;
+	// カメラからのビデオキャプチャを初期化する
+	CvCapture *videoCapture = cvCreateCameraCapture(0);
+	if (videoCapture == NULL)
+	{
+		return -1;
 	}
 
-	cvReleaseCapture(&capture);
-	cvDestroyWindow("Capture");
+
+	// ウィンドウを作成する
+	cvNamedWindow(MYWINDOW_NAME, CV_WINDOW_AUTOSIZE);
+	cvNamedWindow(MYWINDOW_NAME+'2', CV_WINDOW_AUTOSIZE);
+
+	HandRecognition *hand = new HandRecognition(videoCapture);
+	// 何かキーが押下されるまで、ループをくり返す
+	while (cvWaitKey(1) == -1)
+	{
+		// カメラから1フレーム取得する
+		IplImage *image = cvQueryFrame(videoCapture);
+
+		// ウィンドウに画像を表示する
+		hand->update();
+		//cvShowImage(MYWINDOW_NAME, image);
+	}
+
+
+	// ビデオキャプチャを解放する
+	cvReleaseCapture(&videoCapture);
+
+	// ウィンドウを破棄する
+	cvDestroyWindow(MYWINDOW_NAME);
 
 	return 0;
 }
