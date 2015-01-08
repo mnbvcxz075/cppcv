@@ -23,7 +23,7 @@ private:
 	POINT getCentroid();
 	void setCentroid();
 	void binaryzation();
-	void findHandContour();
+	void findHand();
 
 
 public:
