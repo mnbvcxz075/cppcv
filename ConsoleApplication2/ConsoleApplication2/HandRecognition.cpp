@@ -9,8 +9,8 @@ lower( cv::Scalar(0, 0, 0, 0))
 
 }
 HandRecognition::HandRecognition(cv::VideoCapture cap)
-: upper(cv::Scalar(225, 255, 255, 255)),
-lower(cv::Scalar(110, 120, 110, 0))
+: upper(cv::Scalar(100, 255, 255, 255)),
+lower(cv::Scalar(10, 120, 110, 0))
 {
 	this->capture = cap;
 	capture >> src_img;
