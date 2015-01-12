@@ -17,7 +17,7 @@
 		CvMemStorage* mem;
 		CvMoments moments;
 		CvCapture *capture;
-		CvScalar max_thre = cvScalar(100, 255, 255, 255), min_thre = cvScalar(0, 100, 5, 0);
+		CvScalar max_thre = cvScalar(195, 215, 215, 255), min_thre = cvScalar(1, 130, 105, 0);
 		POINT centroid;
 		bool exist_contour;
 		char* window_name;
