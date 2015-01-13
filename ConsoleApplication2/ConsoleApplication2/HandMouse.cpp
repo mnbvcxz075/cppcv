@@ -2,8 +2,7 @@
 
 HandMouse::HandMouse(HandRecognition* hr){
 	mouse_point = POINT();
-	mouse_point.x = 0;
-	mouse_point.y = 0;
+	GetCursorPos(&mouse_point);
 
 	privious_point = POINT();
 	privious_point.x = 0;
@@ -53,6 +52,7 @@ void HandMouse::update(){
 
 	setNextPoint(p);
 	privious_point = p;
+	moveMouse();
 }
 
 void HandMouse::setNextPoint(POINT p){
