@@ -37,9 +37,9 @@ void HandMouse::update(){
 		}
 	}
 	else{
-		if (mouse_point.x != 0 && mouse_point.y != 0){
-			if (std::abs(mouse_point.x - privious_point.x) < lower_distance
-				&&std::abs(mouse_point.y - privious_point.y) < lower_distance){
+		if (p.x != 0 && p.y != 0){
+			if (std::abs(p.x - privious_point.x) < lower_distance
+				&&std::abs(p.y - privious_point.y) < lower_distance){
 				moveCount++;
 				if (moveCount > 2){
 					moveCount = 0;
