@@ -8,5 +8,6 @@ public:
 	const std::string winName = "buttons";
 private:
 	cv::Mat mat;
-	static void callback(int, int, int, int, void*);
+	 void static callback(int, int, int, int, void*);
+	 const int low=2, col=8, buttonSize=40;
 };
