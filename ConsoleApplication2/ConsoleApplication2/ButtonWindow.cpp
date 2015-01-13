@@ -1,5 +1,9 @@
 #include"ButtonWindow.h"
 
+void callback(int event, int x, int y, int flags, void* param){
+
+}
+
 ButtonWindow::ButtonWindow(){
 
 	cv::namedWindow(winName, 1);
@@ -12,8 +16,4 @@ ButtonWindow::ButtonWindow(){
 		}
 	}
 	cv::imshow(winName, mat);
-}
-
-void callback(int event, int x, int y, int flags, void* param){
-
 }
