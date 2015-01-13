@@ -16,7 +16,7 @@ lower(cv::Scalar(0, 1, 5, 0))
 	capture >> src_img;
 
 	exist_contour=false;
-	isMouse = false;
+	mouseMode = notMouse;
 
 	fingers = new cv::Point[5];
 	fingers2 = new cv::Point[5];
@@ -81,7 +81,13 @@ void HandRecognition::findHand(){
 		cv::fillPoly(hand_hull, contours, cv::Scalar(0, 0, 255, 0));
 		cv::Moments moments = cv::moments(handContour);
 		centroid = cv::Point(moments.m10 / moments.m00, moments.m01 / moments.m00);
-		cv::Scalar color = isMouse ? cv::Scalar(0, 0, 255, 0) : cv::Scalar(0, 255, 0, 0);
+		cv::Scalar color;
+		switch (mouseMode){
+		case notMouse:color = cv::Scalar(255,0,0,0); break;
+		case isMouse:color = cv::Scalar(0,0,255,0); break;
+		case isTouched:color = cv::Scalar(0,255,0,0); break;
+		default:color = cv::Scalar(0,0,0,0); break;
+		}
 		cv::circle(src_img, centroid, 5, color, -1);
 	}
 }
@@ -129,7 +135,7 @@ void HandRecognition::getFingers(){
 				fingers2[i] = cv::Point(0, 0);
 			}
 
-			isMouse = false;
+			mouseMode = notMouse;
 			int n = 0;
 			for (int i = 0; i < convexityDefects.size(); i++){
 				double cos = getCos(convexityDefects[i]);
@@ -147,7 +153,10 @@ void HandRecognition::getFingers(){
 				}
 			}
 			if (n>3){
-				isMouse = true;
+				mouseMode = isMouse;
+			}else
+			if (n>2){
+				mouseMode = isTouched;
 			}
 			//for (int i = 0; i < 5; i++){
 			//	cv::circle(src_img, fingers[i], 5, cv::Scalar(50 * i,0, 0, 0), -1);

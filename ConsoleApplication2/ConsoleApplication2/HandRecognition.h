@@ -38,7 +38,12 @@ private:
 	cv::Mat temp_img;
 	cv::VideoCapture capture;
 
-	bool isMouse;
+	int mouseMode;
+	enum{
+		notMouse,
+		isMouse,
+		isTouched
+	};
 
 
 	void binarization();
