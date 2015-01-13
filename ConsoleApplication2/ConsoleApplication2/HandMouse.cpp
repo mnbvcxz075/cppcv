@@ -7,7 +7,7 @@ HandMouse::HandMouse(HandRecognition* hr){
 	
 	int i = ShowCursor(true);
 
-	privious_point =hand->getCentroid;
+	privious_point =hand->getCentroid();
 	next_index = 0;
 
 	moveCount = 0;
@@ -20,7 +20,7 @@ HandMouse::~HandMouse(){
 
 void HandMouse::update(){
 	POINT p=hand->getCentroid();
-	isMove = hand->getMouseMode != notMouse;
+	isMove = hand->getMouseMode() != notMouse;
 	setNextPoint(p);
 	privious_point = p;
 	moveMouse();
