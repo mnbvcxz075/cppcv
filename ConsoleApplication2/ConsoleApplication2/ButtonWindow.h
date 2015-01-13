@@ -15,6 +15,6 @@ public:
 private:
 	cv::Mat mat;
 	 void static callback(int, int, int, int, void*);
-	 static bool buttons[low*col];
+	 static bool buttons=new bool[low*col];
 	 std::string nums[col];
 };
