@@ -1,7 +1,6 @@
 #include <iostream>
 #include"HandRecognition.h"
 #include"HandMouse.h"
-#include"ButtonWindow.h"
 
 
 int main(int argc, char** argv)
