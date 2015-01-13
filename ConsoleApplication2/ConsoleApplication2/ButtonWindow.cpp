@@ -4,7 +4,12 @@
 
 ButtonWindow::ButtonWindow()
 {
-
+	for (int i = 0; i < col; i++){
+		for (int j = 0; j < low; j++){
+			buttons[i*low + j] = false;
+			
+		}
+	}
 	cv::namedWindow(winName);
 	cv::resizeWindow(winName, 200, 40);
 	cv::setMouseCallback(winName,ButtonWindow::callback);
