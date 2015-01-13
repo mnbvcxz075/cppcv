@@ -60,5 +60,6 @@ private:
 public:
 	POINT getCentroid();
 	void update();
-	void setIsMouse(bool);
+	void setMouseMode(int);
+	int getMouseMode();
 };

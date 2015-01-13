@@ -229,6 +229,9 @@ double HandRecognition::getCos(cv::Vec4i vec){
 
 }
 
-void HandRecognition::setIsMouse(bool is){
-	//isMouse = is;
+void HandRecognition::setMouseMode(int mode){
+	mouseMode = mode;
+}
+int HandRecognition::getMouseMode(){
+	return mouseMode;
 }
