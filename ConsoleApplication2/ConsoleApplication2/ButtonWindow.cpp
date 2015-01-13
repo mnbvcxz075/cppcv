@@ -17,7 +17,7 @@ ButtonWindow::ButtonWindow()
 	mat.create(low*buttonSize,col*buttonSize, CV_8UC3);
 	for (int i = 0; i < col; i++){
 		for (int j = 0; j < low; j++){
-			cv::rectangle(mat, cv::Point(i*buttonSize,j*buttonSize), cv::Point((i+1)*buttonSize,(j+1)*buttonSize), cv::Scalar((i+j)%2*255,0,(i+j+1)%2*255));
+			cv::rectangle(mat, cv::Point(i*buttonSize,j*buttonSize), cv::Point((i+1)*buttonSize,(j+1)*buttonSize), cv::Scalar((i+j)%2*255,0,(i+j+1)%2*255),-1);
 		}
 	}
 	cv::imshow(winName, mat);
@@ -50,5 +50,7 @@ void ButtonWindow::changeNum(int i, int num){
 				cv::putText(mat, nums[j], cv::Point(i*buttonSize, (j + 1)*buttonSize), cv::FONT_HERSHEY_SIMPLEX, 1, cv::Scalar(0, 0, 0, 0));
 		}
 	}
+
+	cv::imshow(winName, mat);
 
 }
