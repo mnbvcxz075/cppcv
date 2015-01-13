@@ -58,8 +58,8 @@ void HandRecognition::update(){
 						button->changeNum(j, --lower[j / 2]);
 				}
 			}
+			button->setButton(false, j + i*button->col);
 		}
-
 	}
 
 	binarization();
