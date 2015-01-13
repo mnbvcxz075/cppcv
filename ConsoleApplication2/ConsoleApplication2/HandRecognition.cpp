@@ -99,6 +99,9 @@ void HandRecognition::findHand(){
 		exist_contour = true;
 
 	if (exist_contour){
+		contours.clear();
+		contours.push_back(handContour);
+		cv::fillPoly(hand_hull, contours, cv::Scalar(0, 0, 255, 0));
 		cv::Moments moments = cv::moments(handContour);
 		centroid = cv::Point(moments.m10 / moments.m00, moments.m01 / moments.m00);
 		cv::Scalar color = isMouse ? cv::Scalar(0, 0, 255, 0) : cv::Scalar(0, 255, 0, 0);
