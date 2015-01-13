@@ -7,3 +7,9 @@
 
 static const std::string WINDOW_NAME("window");
 
+enum{
+	notMouse,
+	isMouse,
+	isTouched
+};
+

@@ -18,6 +18,7 @@ int main(int argc, char** argv)
 
 	HandRecognition hand(cap);
 
+	hand.update();
 	HandMouse mouse(&hand);
 
 	while (cvWaitKey(1) == -1){

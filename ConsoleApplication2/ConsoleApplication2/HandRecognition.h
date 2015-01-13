@@ -15,6 +15,8 @@ public:
 
 	int* upper;// = cv::Scalar(255, 255, 255, 255);
 	int *lower;// = cv::Scalar(225, 180, 180, 0);
+
+
 private:
 	//cv::Scalar upper = cv::Scalar(195, 235, 235, 255);//Lab
 	//cv::Scalar lower = cv::Scalar(1, 120, 100, 0);
@@ -42,11 +44,6 @@ private:
 	cv::VideoCapture capture;
 
 	int mouseMode;
-	enum{
-		notMouse,
-		isMouse,
-		isTouched
-	};
 
 
 	void binarization();
