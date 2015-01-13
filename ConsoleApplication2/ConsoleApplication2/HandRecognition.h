@@ -16,7 +16,7 @@ private:
 	//cv::Scalar lower = cv::Scalar(1, 120, 100, 0);
 	cv::Scalar const upper;// = cv::Scalar(255, 255, 255, 255);
 	cv::Scalar const lower;// = cv::Scalar(225, 180, 180, 0);
-	const int bin_type = CV_BGR2YCrCb;
+	const int bin_type = CV_BGR2HSV;
 
 	cv::Point centroid;
 
