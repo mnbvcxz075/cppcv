@@ -84,11 +84,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="ButtonWindow.cpp" />
     <ClCompile Include="HandMouse.cpp" />
     <ClCompile Include="HandRecognition.cpp" />
     <ClCompile Include="Source.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="ButtonWindow.h" />
     <ClInclude Include="HandMouse.h" />
     <ClInclude Include="HandRecognition.h" />
     <ClInclude Include="Setting.h" />

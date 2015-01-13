@@ -1,6 +1,7 @@
 #include <iostream>
 #include"HandRecognition.h"
 #include"HandMouse.h"
+#include"ButtonWindow.h"
 
 
 int main(int argc, char** argv)
@@ -20,6 +21,7 @@ int main(int argc, char** argv)
 	cv::namedWindow(WINDOW_NAME, 1);
 	cv::namedWindow(WINDOW_NAME + '2', 1);
 	cv::namedWindow(WINDOW_NAME + '3', 1);
+	ButtonWindow buttons();
 
 	HandMouse mouse(&hand);
 
