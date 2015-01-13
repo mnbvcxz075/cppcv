@@ -1,5 +1,4 @@
 #include"Setting.h"
-#include"HandRecognition.h"
 
 
 class ButtonWindow{

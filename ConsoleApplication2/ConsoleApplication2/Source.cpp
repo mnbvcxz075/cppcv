@@ -18,7 +18,7 @@ int main(int argc, char** argv)
 	}
 
 	HandRecognition hand(cap);
-	ButtonWindow *buttons = new ButtonWindow();
+	ButtonWindow buttons(&hand);
 
 	HandMouse mouse(&hand);
 
