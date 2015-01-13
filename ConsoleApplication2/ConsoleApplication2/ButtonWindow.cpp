@@ -48,7 +48,7 @@ void ButtonWindow::changeNum(int i, int num){
 		for (int j = 0; j < low; j++){
 			cv::rectangle(mat, cv::Point(i*buttonSize, j*buttonSize), cv::Point((i + 1)*buttonSize, (j + 1)*buttonSize), cv::Scalar((i + j) % 2 * 255, 0, (i + j + 1) % 2 * 255),-1);
 			if (i == 1)
-				cv::putText(mat, nums[j], cv::Point(i*buttonSize, (j + 1)*buttonSize), 0, 1, cv::Scalar(0, 0, 0, 0));
+				cv::putText(mat, nums[j], cv::Point(i*buttonSize, (j + 1)*buttonSize), cv::FONT_HERSHEY_SIMPLEX, 1, cv::Scalar(0, 0, 0, 0));
 		}
 	}
 
