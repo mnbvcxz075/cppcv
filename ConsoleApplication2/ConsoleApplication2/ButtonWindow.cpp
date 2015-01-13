@@ -1,11 +1,10 @@
 #include"ButtonWindow.h"
 
 
-bool* ButtonWindow::buttons;
+bool ButtonWindow::buttons[col*low];
 
 ButtonWindow::ButtonWindow()
 {
-	buttons = new bool[col*low];
 	for (int i = 0; i < col; i++){
 		for (int j = 0; j < low; j++){
 			buttons[i*low + j] = false;
