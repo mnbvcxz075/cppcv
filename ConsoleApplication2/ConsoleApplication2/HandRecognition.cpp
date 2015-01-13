@@ -149,9 +149,9 @@ void HandRecognition::getFingers(){
 				isMouse = true;
 			}
 			for (int i = 0; i < 5; i++){
-				cv::circle(src_img, fingers[i], 5, cv::Scalar(50 * i, 250 - 50 * i, 0, 0), -1);
+				cv::circle(src_img, fingers[i], 5, cv::Scalar(50 * i,0, 0, 0), -1);
 				if(i!=5)
-					cv::circle(src_img, fingers2[i], 5, cv::Scalar(0, 250 - 50 * i, 50 * i, 0), -1);
+					cv::circle(src_img, fingers2[i], 5, cv::Scalar(0, 0, 50 * i, 0), -1);
 			}
 		}
 	}
