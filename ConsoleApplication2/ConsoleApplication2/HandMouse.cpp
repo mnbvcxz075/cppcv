@@ -22,10 +22,7 @@ HandMouse::~HandMouse(){
 
 void HandMouse::update(){
 	GetCursorPos(&mouse_point);
-	POINT p = hand->getCentroid();
-	std::cout << moveCount << ',' << (p.x - privious_point.x) << ',' << abs(p.y - privious_point.y) << std::endl;
-	std::cout << p.x << ',' << p.y << ',' << privious_point.x << ',' << privious_point.y<< std::endl;
-	if (!isMove){
+	POINT p = hand->getCentroid();if (!isMove){
 		if (p.x != 0 && p.y != 0){
 			if (std::abs(p.x - privious_point.x) > lower_distance
 				&&std::abs(p.y - privious_point.y) > lower_distance){
