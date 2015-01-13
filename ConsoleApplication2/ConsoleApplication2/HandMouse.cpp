@@ -4,7 +4,7 @@ HandMouse::HandMouse(HandRecognition* hr){
 	mouse_point = POINT();
 	GetCursorPos(&mouse_point);
 	
-	std::cout<<ShowCursor(true);
+	int i = ShowCursor(true);
 
 	privious_point = POINT();
 	privious_point.x = 0;
