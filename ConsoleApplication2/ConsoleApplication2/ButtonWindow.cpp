@@ -1,6 +1,6 @@
 #include"ButtonWindow.h"
 
-void callback(int event, int x, int y, int flags, void* param){
+void ButtonWindow::callback(int event, int x, int y, int flags, void* param){
 
 }
 
@@ -8,7 +8,7 @@ ButtonWindow::ButtonWindow(){
 
 	cv::namedWindow(winName, 1);
 	cv::resizeWindow(winName, 200, 40);
-	cv::setMouseCallback(winName,callback);
+	cv::setMouseCallback(winName,ButtonWindow::callback);
 	mat.create(200, 40, CV_8UC3);
 	for (int i = 0; i < 8; i++){
 		for (int j = 0; j < 2; j++){
