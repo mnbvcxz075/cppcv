@@ -43,9 +43,9 @@ bool ButtonWindow::getButton(int i){
 void ButtonWindow::changeNum(int i, int num){
 	nums[i]=std::to_string(num);
 
-	for (int i = 0; i < col; i++){
-		for (int j = 0; j < low; j++){
-			cv::rectangle(mat, cv::Point(i*buttonSize, j*buttonSize), cv::Point((i + 1)*buttonSize, (j + 1)*buttonSize), cv::Scalar((i + j) % 2 * 255, 0, (i + j + 1) % 2 * 255),-1);
+	for (int i = 0; i < low; i++){
+		for (int j = 0; j < col; j++){
+			cv::rectangle(mat, cv::Point(j*buttonSize, i*buttonSize), cv::Point((j + 1)*buttonSize, (i + 1)*buttonSize), cv::Scalar((i + j) % 2 * 255, 0, (i + j + 1) % 2 * 255),-1);
 			if (i == 1)
 				cv::putText(mat, nums[j], cv::Point(j*buttonSize, buttonSize * 2), cv::FONT_HERSHEY_PLAIN, 1, cv::Scalar(0, 0, 0, 0),3);
 		}
