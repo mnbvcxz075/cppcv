@@ -35,6 +35,8 @@ void HandMouse::setNextPoint(POINT p){
 }
 
 const void HandMouse::moveMouse(){
-	SetCursorPos(mouse_point.x, mouse_point.y);
+	if (isMove){
+		SetCursorPos(mouse_point.x, mouse_point.y);
+	}
 }
 
