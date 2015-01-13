@@ -31,8 +31,8 @@ private:
 	std::vector<int> hand_hull;
 	std::vector<cv::Point> hand_poly;
 	std::vector<cv::Vec4i> convexityDefects;
-	std::vector<cv::Point> fingers;
-	std::vector<cv::Point> fingers2;
+	cv::Point* fingers;
+	cv::Point* fingers2;
 
 
 	cv::Mat temp_img;
@@ -45,7 +45,7 @@ private:
 	void findHand();
 	void distTransform();
 	void recognizeHandGesture();
-	void getFinger();
+	void getFingers();
 	double getCos(cv::Vec4i);
 
 

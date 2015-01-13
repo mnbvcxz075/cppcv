@@ -17,6 +17,10 @@ lower(cv::Scalar(1, 125, 110, 0))
 
 	exist_contour=false;
 	isMouse = false;
+
+	fingers = new cv::Point[5];
+	fingers2 = new cv::Point[5];
+
 }
 HandRecognition::~HandRecognition(){
 
@@ -33,34 +37,7 @@ void HandRecognition::update(){
 	findHand();
 	//distTransform();
 ////////////////////////////////////////////////////////////
-	if (exist_contour){
-		cv::approxPolyDP(cv::Mat(handContour), hand_poly, 40, true);
-		if (hand_poly.size()>3){
-			int pnum = hand_poly.size();
-			for (int i = 0; i < pnum; ++i)
-				cv::line(hand_img, hand_poly[i], hand_poly[i + 1 < pnum ? i + 1 : 0], cv::Scalar(100, 100, 200), 2, CV_AA);
 
-			cv::convexHull(hand_poly, hand_hull, true);
-
-
-			int hnum = hand_hull.size();
-			for (int i = 0; i < hnum; ++i)
-				cv::line(hand_img, hand_poly[hand_hull[i]], hand_poly[hand_hull[i + 1 < hnum ? i + 1 : 0]], cv::Scalar(100, 100, 200), 2, CV_AA);
-
-
-			cv::convexityDefects(hand_poly, hand_hull, convexityDefects);
-
-
-			for (int i = 0; i < convexityDefects.size(); i++){
-				double cos = getCos(convexityDefects[i]);
-				if (cos>std::cos(1.7) && convexityDefects[i][3]>10000){
-					cv::circle(src_img, hand_poly[convexityDefects[i][0]], 5, cv::Scalar(0, 0, 0, 0), -1);
-					cv::circle(src_img, hand_poly[convexityDefects[i][1]], 8, cv::Scalar(255, 0, 0, 0), -1);
-					cv::circle(src_img, hand_poly[convexityDefects[i][2]], 8, cv::Scalar(0, 255, 0, 0), -1);
-				}
-			}
-		}
-	}
 	///////////////////////////////////////////////////////////
 	cv::imshow(WINDOW_NAME, hand_img);
 	cv::imshow(WINDOW_NAME + '2', bin_img);
@@ -127,6 +104,52 @@ void HandRecognition::distTransform(){
 	}
 	cv::circle(src_img, max_point, 5, cv::Scalar(0, 255, 0, 0), -1);
 
+}
+
+void HandRecognition::getFingers(){
+	if (exist_contour){
+		cv::approxPolyDP(cv::Mat(handContour), hand_poly, 40, true);
+		if (hand_poly.size()>3){
+			int pnum = hand_poly.size();
+			for (int i = 0; i < pnum; ++i)
+				cv::line(hand_img, hand_poly[i], hand_poly[i + 1 < pnum ? i + 1 : 0], cv::Scalar(100, 100, 200), 2, CV_AA);
+
+			cv::convexHull(hand_poly, hand_hull, true);
+
+
+			int hnum = hand_hull.size();
+			for (int i = 0; i < hnum; ++i)
+				cv::line(hand_img, hand_poly[hand_hull[i]], hand_poly[hand_hull[i + 1 < hnum ? i + 1 : 0]], cv::Scalar(100, 100, 200), 2, CV_AA);
+
+
+			cv::convexityDefects(hand_poly, hand_hull, convexityDefects);
+
+			for (int i = 0; i < 5; i++){
+				fingers[i] = cv::Point(0,0);
+				fingers2[i] = cv::Point(0, 0);
+			}
+
+
+			for (int i = 0; i < convexityDefects.size(); i++){
+				double cos = getCos(convexityDefects[i]);
+				if (cos>std::cos(1.7) && convexityDefects[i][3]>10000){
+					fingers[i] = fingers[i].x == hand_poly[convexityDefects[i][0]].x
+									&& fingers[i].y == hand_poly[convexityDefects[i][0]].y
+								? hand_poly[convexityDefects[i][0]]
+								: cv::Point((fingers[i].x + hand_poly[convexityDefects[i][0]].x)/2
+									, (fingers[i].y + hand_poly[convexityDefects[i][0]].y) / 2);
+
+					fingers2[i] = hand_poly[convexityDefects[i][2]];
+					fingers[i+1] = hand_poly[convexityDefects[i][1]];
+				}
+			}
+			for (int i = 0; i < 5; i++){
+				cv::circle(src_img, fingers[i], 5, cv::Scalar(0, 0, 0, 0), -1);
+				if(i!=5)
+					cv::circle(src_img, fingers2[i], 5, cv::Scalar(0, 0, 0, 0), -1);
+			}
+		}
+	}
 }
 
 POINT HandRecognition::getCentroid(){
