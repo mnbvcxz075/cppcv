@@ -1,17 +1,19 @@
 #include"HandRecognition.h"
 #include<cmath>
 HandRecognition::HandRecognition(cv::Mat img)
-: upper( cv::Scalar(255, 255, 255, 255)),
-lower( cv::Scalar(0, 0, 0, 0))
 {
 	this->img = img;
 	src_img = img.clone();
 
 }
 HandRecognition::HandRecognition(cv::VideoCapture cap)
-: upper(cv::Scalar(30, 255, 255, 255)),
-lower(cv::Scalar(0, 1, 5, 0))
 {
+	upper = new int[3];
+	lower = new int[3];
+	for (int i = 0; i < 3; i++){
+		upper[i] = 255;
+		lower[i] = 0;
+	}
 	this->capture = cap;
 	capture >> src_img;
 
@@ -25,6 +27,7 @@ lower(cv::Scalar(0, 1, 5, 0))
 	cv::namedWindow(WINDOW_NAME + '2', 1);
 	cv::namedWindow(WINDOW_NAME + '3', 1);
 
+	button = new ButtonWindow();
 
 }
 HandRecognition::~HandRecognition(){
@@ -37,6 +40,27 @@ void HandRecognition::update(){
 	else
 		src_img = img.clone();
 	handContour.clear();
+
+	for (int i = 0; i < button->low; i++){
+		for (int j = 0; j < button->col; j++){
+			if (button->getButton(j+i*button->col)){
+				if (i == 0){
+					if (j % 2 == 0)
+						button->changeNum(j,++upper[j / 2]);
+					else
+						button->changeNum(j, ++lower[j / 2]);
+				}
+				else if (i == 2){
+
+					if (j % 2 == 0)
+						button->changeNum(j, --upper[j / 2]);
+					else
+						button->changeNum(j, --lower[j / 2]);
+				}
+			}
+		}
+
+	}
 
 	binarization();
 	findHand();
@@ -53,7 +77,7 @@ void HandRecognition::update(){
 void HandRecognition::binarization(){
 
 	cv::cvtColor(src_img, temp_img, bin_type);
-	cv::inRange(temp_img, lower, upper, bin_img);
+	cv::inRange(temp_img, cv::Scalar(lower[0], lower[1], lower[2], 0), cv::Scalar(upper[0], upper[1], upper[2], 0), bin_img);
 	cv::erode(bin_img, bin_img, cv::Mat(), cv::Point(-1, -1), 5);
 	cv::dilate(bin_img, bin_img, cv::Mat(), cv::Point(-1, -1), 8);
 	cv::erode(bin_img, bin_img, cv::Mat(), cv::Point(-1, -1), 3);

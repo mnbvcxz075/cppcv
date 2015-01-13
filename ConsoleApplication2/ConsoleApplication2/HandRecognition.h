@@ -1,6 +1,7 @@
 #pragma once
 
 #include"Setting.h"
+#include"ButtonWindow.h"
 
 
 class HandRecognition{
@@ -11,12 +12,14 @@ public:
 	HandRecognition(cv::VideoCapture);
 	~HandRecognition();
 
+
+	int* upper;// = cv::Scalar(255, 255, 255, 255);
+	int *lower;// = cv::Scalar(225, 180, 180, 0);
 private:
 	//cv::Scalar upper = cv::Scalar(195, 235, 235, 255);//Lab
 	//cv::Scalar lower = cv::Scalar(1, 120, 100, 0);
-	cv::Scalar const upper;// = cv::Scalar(255, 255, 255, 255);
-	cv::Scalar const lower;// = cv::Scalar(225, 180, 180, 0);
 	const int bin_type = CV_BGR2HSV;
+	ButtonWindow* button;
 
 	cv::Point centroid;
 
