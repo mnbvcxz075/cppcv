@@ -21,6 +21,11 @@ lower(cv::Scalar(0, 1, 5, 0))
 	fingers = new cv::Point[5];
 	fingers2 = new cv::Point[5];
 
+	cv::namedWindow(WINDOW_NAME, 1);
+	cv::namedWindow(WINDOW_NAME + '2', 1);
+	cv::namedWindow(WINDOW_NAME + '3', 1);
+
+
 }
 HandRecognition::~HandRecognition(){
 

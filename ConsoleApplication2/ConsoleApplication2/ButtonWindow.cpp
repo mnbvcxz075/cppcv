@@ -6,7 +6,7 @@ void ButtonWindow::callback(int event, int x, int y, int flags, void* param){
 
 ButtonWindow::ButtonWindow(){
 
-	cv::namedWindow(winName, 1);
+	cv::namedWindow(winName);
 	cv::resizeWindow(winName, 200, 40);
 	cv::setMouseCallback(winName,ButtonWindow::callback);
 	mat.create(200, 40, CV_8UC3);
