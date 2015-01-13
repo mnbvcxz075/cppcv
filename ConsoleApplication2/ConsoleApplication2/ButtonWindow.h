@@ -14,7 +14,6 @@ public:
 private:
 	cv::Mat mat;
 	 void static callback(int, int, int, int, void*);
-	 const HandRecognition*  hand;
 	 static bool buttons[low*col];
 	 std::string nums[col];
 };
