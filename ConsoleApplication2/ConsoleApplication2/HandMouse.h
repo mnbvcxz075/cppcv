@@ -10,14 +10,18 @@ public:
 	~HandMouse();
 
 private:
-	POINT *privious_points;
+	static const int lower_distance = 3;
+	POINT privious_point;
 	int next_index;
 	POINT mouse_point;
+	int moveCount;
+	bool isMove;
 
 	HandRecognition* hand;
 
 public:
 	const void moveMouse();
-	void setNextPoint(int,int);
+	void setNextPoint(POINT);
+	void update();
 
 };
