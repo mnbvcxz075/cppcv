@@ -181,10 +181,10 @@ void HandRecognition::getFingers(){
 					n++;
 				}
 			}
-			if (n>3){
+			if (n==4){
 				mouseMode = isMouse;
 			}else
-			if (n>2){
+			if (n==3){
 				mouseMode = isTouched;
 			}
 			//for (int i = 0; i < 5; i++){
