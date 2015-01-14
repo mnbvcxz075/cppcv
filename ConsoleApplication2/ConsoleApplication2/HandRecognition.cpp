@@ -83,7 +83,7 @@ void HandRecognition::binarization(){
 	else{
 		cv::inRange(temp_img, cv::Scalar(0, lower[1], lower[2], 0), cv::Scalar(upper[0], upper[1], upper[2], 0), bin_img);
 		cv::inRange(temp_img, cv::Scalar(lower[0], lower[1], lower[2], 0), cv::Scalar(0, upper[1], upper[2], 0), hand_img);
-		cv::
+		cv::add(bin_img,hand_img,bin_img);
 
 	}
 
