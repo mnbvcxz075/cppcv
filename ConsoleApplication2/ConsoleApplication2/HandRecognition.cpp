@@ -152,7 +152,7 @@ void HandRecognition::distTransform(){
 
 void HandRecognition::getFingers(){
 	if (exist_contour){
-		cv::approxPolyDP(cv::Mat(handContour), hand_poly, 40, true);
+		cv::approxPolyDP(cv::Mat(handContour), hand_poly, 10, true);
 		if (hand_poly.size()>3){
 			int pnum = hand_poly.size();
 			for (int i = 0; i < pnum; ++i)
