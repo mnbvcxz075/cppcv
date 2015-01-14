@@ -20,7 +20,7 @@ public:
 private:
 	//cv::Scalar upper = cv::Scalar(195, 235, 235, 255);//Lab
 	//cv::Scalar lower = cv::Scalar(1, 120, 100, 0);
-	const int bin_type = CV_BGR2HSV;
+	const int bin_type = CV_BGR2YCrCb;
 	ButtonWindow* button;
 
 	cv::Point centroid;
