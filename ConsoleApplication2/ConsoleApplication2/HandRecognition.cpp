@@ -77,7 +77,16 @@ void HandRecognition::update(){
 void HandRecognition::binarization(){
 
 	cv::cvtColor(src_img, temp_img, bin_type);
-	cv::inRange(temp_img, cv::Scalar(lower[0], lower[1], lower[2], 0), cv::Scalar(upper[0], upper[1], upper[2], 0), bin_img);
+	if (lower[0]<upper[0]){
+		cv::inRange(temp_img, cv::Scalar(lower[0], lower[1], lower[2], 0), cv::Scalar(upper[0], upper[1], upper[2], 0), bin_img);
+	}
+	else{
+		cv::inRange(temp_img, cv::Scalar(0, lower[1], lower[2], 0), cv::Scalar(upper[0], upper[1], upper[2], 0), bin_img);
+		cv::inRange(temp_img, cv::Scalar(lower[0], lower[1], lower[2], 0), cv::Scalar(0, upper[1], upper[2], 0), hand_img);
+		cv::
+
+	}
+
 	cv::erode(bin_img, bin_img, cv::Mat(), cv::Point(-1, -1), 5);
 	cv::dilate(bin_img, bin_img, cv::Mat(), cv::Point(-1, -1), 8);
 	cv::erode(bin_img, bin_img, cv::Mat(), cv::Point(-1, -1), 3);
