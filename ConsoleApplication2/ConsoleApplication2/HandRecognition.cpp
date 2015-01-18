@@ -94,12 +94,14 @@ void HandRecognition::binarization(){
 	cv::erode(bin_img, bin_img, cv::Mat(), cv::Point(-1, -1), 3);
 }
 
+
 void HandRecognition::findHand(){
 	temp_img = bin_img.clone();
 	exist_contour = false;
 	hand_img.create(bin_img.size(), bin_img.type());
 
 	cv::findContours(temp_img, contours, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_NONE);
+
 	double max_size = 0;
 	for (std::vector<std::vector<cv::Point>>::iterator it = contours.begin(); it != contours.end(); it++){
 		double area_size = cv::contourArea(cv::Mat(*it));
@@ -134,25 +136,30 @@ void HandRecognition::findHand(){
 
 void HandRecognition::distTransform(){
 	cv::distanceTransform(hand_img, dist_img, CV_DIST_L2, 3);
-	float*ptr = (float*)dist_img.data;
-	double max_distance = 0;
-	cv::Point max_point;
-	for (int i = 0; i < dist_img.rows; i++){
-		for (int j = 0; j < dist_img.cols; j++){
-			if (max_distance<*ptr){
-				max_distance = *ptr;
-				max_point.x = j;
-				max_point.y = i;
-				std::cout << *ptr << i << j << std::endl;
-			}
-			ptr++;
-		}
+
+	double *max_distance;
+	cv::Point* max_point;
+	cv::minMaxLoc(dist_img, NULL, max_distance, NULL, max_point);
+
+	//float*ptr = (float*)dist_img.data;
+	//for (int i = 0; i < dist_img.rows; i++){
+	//	for (int j = 0; j < dist_img.cols; j++){
+	//		if (max_distance<*ptr){
+	//			max_distance = *ptr;
+	//			max_point.x = j;
+	//			max_point.y = i;
+	//			std::cout << *ptr << i << j << std::endl;
+	//		}
+	//		ptr++;
+	//	}
+	//}
+	if (max_point){
+		cv::circle(src_img, *max_point, 5, cv::Scalar(0, 255, 0, 0), -1);
 	}
-	cv::circle(src_img, max_point, 5, cv::Scalar(0, 255, 0, 0), -1);
 
 }
 
-void HandRecognition::getFingers(){
+bool HandRecognition::getFingers(){
 	if (exist_contour){
 		cv::approxPolyDP(cv::Mat(handContour), hand_poly, 10, true);
 		if (hand_poly.size()>3){
@@ -191,13 +198,18 @@ void HandRecognition::getFingers(){
 					cv::circle(src_img, hand_poly[convexityDefects[i][1]], 5, cv::Scalar(50 * i, 0, 0, 0), -1);
 					n++;
 				}
+			}		
+			if (n<=2){
+				return false;
 			}
+
 			if (n==4){
 				mouseMode = isMouse;
 			}else
 			if (n==3){
 				mouseMode = isTouched;
 			}
+			return true;
 			//for (int i = 0; i < 5; i++){
 			//	cv::circle(src_img, fingers[i], 5, cv::Scalar(50 * i,0, 0, 0), -1);
 			//	if(i!=5)

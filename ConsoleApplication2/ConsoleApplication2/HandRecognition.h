@@ -33,6 +33,7 @@ private:
 	std::vector<cv::Point> handContour;
 	boolean exist_contour;
 	std::vector<std::vector<cv::Point>> contours;
+	std::vector<std::vector<cv::Point>> may_be_hand_contours;
 	std::vector<int> hand_hull;
 	std::vector<cv::Point> hand_poly;
 	std::vector<cv::Vec4i> convexityDefects;
@@ -50,7 +51,7 @@ private:
 	void findHand();
 	void distTransform();
 	void recognizeHandGesture();
-	void getFingers();
+	bool getFingers();
 	double getCos(cv::Vec4i);
 
 
