@@ -262,7 +262,11 @@ int HandRecognition::getMouseMode(){
 
 
 void HandRecognition::soatRegion(std::vector<std::vector<cv::Point>> contour){
+	double area = 0;
 	for (std::vector<cv::Point> con:contour){
-		std::cout << cv::contourArea(con)<<" ";
+		area = cv::contourArea(con);
+		if(area>640*480/10)
+			std::cout << area<<" ";
 	}
+	std::cout << std::endl;
 }
