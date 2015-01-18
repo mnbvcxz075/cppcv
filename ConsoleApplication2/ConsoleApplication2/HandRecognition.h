@@ -51,6 +51,7 @@ private:
 	void findHand();
 	void distTransform();
 	void recognizeHandGesture();
+	void soatRegion(std::vector<std::vector<cv::Point>>);
 	bool getFingers();
 	double getCos(cv::Vec4i);
 

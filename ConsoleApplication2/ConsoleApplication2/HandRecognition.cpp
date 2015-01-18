@@ -103,6 +103,7 @@ void HandRecognition::findHand(){
 	cv::findContours(temp_img, contours, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_NONE);
 
 	double max_size = 0;
+	soatRegion(contours);
 	for (std::vector<std::vector<cv::Point>>::iterator it = contours.begin(); it != contours.end(); it++){
 		double area_size = cv::contourArea(cv::Mat(*it));
 		if (area_size > max_size){
@@ -257,4 +258,11 @@ void HandRecognition::setMouseMode(int mode){
 }
 int HandRecognition::getMouseMode(){
 	return mouseMode;
+}
+
+
+void HandRecognition::soatRegion(std::vector<std::vector<cv::Point>> contour){
+	for (std::vector<cv::Point> con:contour){
+		std::cout << cv::contourArea(con);
+	}
 }
