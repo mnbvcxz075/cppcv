@@ -7,13 +7,15 @@ HandRecognition::HandRecognition(cv::Mat img)
 
 }
 HandRecognition::HandRecognition(cv::VideoCapture cap)
+:upper(), lower()
 {
-	upper = new int[3];
-	lower = new int[3];
-	for (int i = 0; i < 3; i++){
-		upper[i] = 255;
-		lower[i] = 0;
-	}
+	upper[0] = 30;
+	lower[0] = 170;
+	upper[0] = 250;
+	lower[0] = 1;
+	upper[0] = 250;
+	lower[0] = 1;
+
 	this->capture = cap;
 	capture >> src_img;
 

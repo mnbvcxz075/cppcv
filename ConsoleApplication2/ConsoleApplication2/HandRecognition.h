@@ -13,8 +13,8 @@ public:
 	~HandRecognition();
 
 
-	int* upper;// = cv::Scalar(255, 255, 255, 255);
-	int *lower;// = cv::Scalar(225, 180, 180, 0);
+	int upper[3];// = cv::Scalar(255, 255, 255, 255);
+	int lower[3];// = cv::Scalar(225, 180, 180, 0);
 
 
 private:
