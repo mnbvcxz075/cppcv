@@ -138,8 +138,8 @@ void HandRecognition::findHand(){
 void HandRecognition::distTransform(){
 	cv::distanceTransform(hand_img, dist_img, CV_DIST_L2, 3);
 
-	double *max_distance;
-	cv::Point* max_point;
+	double *max_distance=0;
+	cv::Point* max_point=0;
 	cv::minMaxLoc(dist_img, NULL, max_distance, NULL, max_point);
 
 	//float*ptr = (float*)dist_img.data;
