@@ -11,10 +11,10 @@ HandRecognition::HandRecognition(cv::VideoCapture cap)
 {
 	upper[0] = 30;
 	lower[0] = 170;
-	upper[0] = 250;
-	lower[0] = 1;
-	upper[0] = 250;
-	lower[0] = 1;
+	upper[1] = 250;
+	lower[1] = 1;
+	upper[2] = 250;
+	lower[2] = 1;
 
 	this->capture = cap;
 	capture >> src_img;
