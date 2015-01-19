@@ -16,7 +16,7 @@ int main(int argc, char** argv)
 		}
 	}
 
-	HandRecognition hand(cap);
+	HandRecognition hand(img);
 
 	hand.update();
 	HandMouse mouse(&hand);

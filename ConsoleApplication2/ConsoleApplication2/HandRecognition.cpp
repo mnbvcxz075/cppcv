@@ -1,25 +1,15 @@
 #include"HandRecognition.h"
 #include<cmath>
-HandRecognition::HandRecognition(cv::Mat img)
-{
-	this->img = img;
-	src_img = img.clone();
+HandRecognition::HandRecognition(){
 
-}
-HandRecognition::HandRecognition(cv::VideoCapture cap)
-:upper(), lower()
-{
-	upper[0] = 30;
+	upper[0] = 169;
 	lower[0] = 170;
 	upper[1] = 250;
 	lower[1] = 1;
 	upper[2] = 250;
 	lower[2] = 1;
 
-	this->capture = cap;
-	capture >> src_img;
-
-	exist_contour=false;
+	exist_contour = false;
 	mouseMode = notMouse;
 
 	fingers = new cv::Point[5];
@@ -29,8 +19,21 @@ HandRecognition::HandRecognition(cv::VideoCapture cap)
 	cv::namedWindow(WINDOW_NAME + '2', 1);
 	cv::namedWindow(WINDOW_NAME + '3', 1);
 
-	button = new ButtonWindow();
+//	button = new ButtonWindow();
 
+}
+HandRecognition::HandRecognition(cv::Mat img)
+:HandRecognition()
+{
+	this->img = img;
+	src_img = img.clone();
+
+}
+HandRecognition::HandRecognition(cv::VideoCapture cap)
+:HandRecognition()
+{
+	this->capture = cap;
+	capture >> src_img;
 }
 HandRecognition::~HandRecognition(){
 
@@ -119,8 +122,7 @@ void HandRecognition::findHand(){
 		exist_contour = true;
 
 	if (exist_contour){
-		contours.clear();
-		contours.push_back(handContour);
+		may_be_hand_contours.push_back(handContour);
 		cv::fillPoly(hand_hull, contours, cv::Scalar(0, 0, 255, 0));
 		cv::Moments moments = cv::moments(handContour);
 		centroid = cv::Point(moments.m10 / moments.m00, moments.m01 / moments.m00);
@@ -263,10 +265,45 @@ int HandRecognition::getMouseMode(){
 
 void HandRecognition::soatRegion(std::vector<std::vector<cv::Point>> contour){
 	double area = 0;
+	may_be_hand_contours.clear();
+	double sizes[] = {0,0,0};
 	for (std::vector<cv::Point> con:contour){
 		area = cv::contourArea(con);
-		if(area>640*480/10)
-			std::cout << area<<" ";
+		if (area > 640 * 480 / 100){
+			std::cout << area << " ";
+			//if (may_be_hand_contours.size()>3){
+			//	int i = 0;
+			//	for (std::vector<std::vector<cv::Point>>::iterator it = may_be_hand_contours.begin(); it != may_be_hand_contours.end(); it++){
+			//		if (area > sizes[i]){
+			//			for (int j = 2; j > i; j--){
+			//				sizes[j] = sizes[j - 1];
+			//			}
+			//			sizes[i] = area;
+			//			may_be_hand_contours.insert(it, con);
+			//			if (may_be_hand_contours.size() > 3)
+			//				may_be_hand_contours.pop_back();
+			//			break;
+			//		}
+			//		i++;
+			//	}
+			//}
+			//else{
+				std::vector<std::vector<cv::Point>>::iterator it = may_be_hand_contours.begin();
+				for (int i = 0; i < 3;i++){
+					if (sizes[i]<area){
+						for (int j = 2; j > i; j--){
+							sizes[j] = sizes[j - 1];
+						}
+						sizes[i] = area;
+						may_be_hand_contours.insert(it, con);
+						if (may_be_hand_contours.size() > 3)
+							may_be_hand_contours.pop_back();
+						break;
+					}
+					it++;
+				}
+//			}
+		}
 	}
 	std::cout << std::endl;
 }
