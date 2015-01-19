@@ -181,7 +181,7 @@ bool HandRecognition::getFingers(std::vector<cv::Point> contour){
 
 		mouseMode = notMouse;
 		int n = 0;
-		Å@
+
 		//
 		for (int i = 0; i < convexityDefects.size(); i++){
 			double cos = getCos(convexityDefects[i]);
