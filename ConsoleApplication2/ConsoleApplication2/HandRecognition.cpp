@@ -114,7 +114,8 @@ void HandRecognition::findHand(){
 	}
 	cv::rectangle(hand_img, cv::Point(0, 0), cv::Point(bin_img.cols, bin_img.rows), cv::Scalar(0, 0, 0, 0), -1);
 
-
+	if (handContour.size() == 0)
+		return;
 //		cv::fillPoly(hand_img, handContour, cv::Scalar(0, 0, 255, 0));
 		cv::Moments moments = cv::moments(handContour);
 		centroid = cv::Point(moments.m10 / moments.m00, moments.m01 / moments.m00);
