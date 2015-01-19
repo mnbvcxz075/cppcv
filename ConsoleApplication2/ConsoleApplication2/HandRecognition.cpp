@@ -68,7 +68,7 @@ void HandRecognition::update(){
 	}
 
 	binarization();
-//	findHand();
+	findHand();
 	distTransform();
 ///////////////////////////////////////////////////////////
 
