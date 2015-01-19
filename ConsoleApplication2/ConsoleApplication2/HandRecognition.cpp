@@ -4,8 +4,8 @@ HandRecognition::HandRecognition(){
 
 	upper[0] = 30;
 	lower[0] = 170;
-	upper[1] = 250;
-	lower[1] = 1;
+	upper[1] = 200;
+	lower[1] = 10;
 	upper[2] = 250;
 	lower[2] = 1;
 
