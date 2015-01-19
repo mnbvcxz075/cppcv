@@ -271,23 +271,6 @@ void HandRecognition::soatRegion(std::vector<std::vector<cv::Point>> contour){
 		area = cv::contourArea(con);
 		if (area > 640 * 480 / 100){
 			std::cout << area << " ";
-			//if (may_be_hand_contours.size()>3){
-			//	int i = 0;
-			//	for (std::vector<std::vector<cv::Point>>::iterator it = may_be_hand_contours.begin(); it != may_be_hand_contours.end(); it++){
-			//		if (area > sizes[i]){
-			//			for (int j = 2; j > i; j--){
-			//				sizes[j] = sizes[j - 1];
-			//			}
-			//			sizes[i] = area;
-			//			may_be_hand_contours.insert(it, con);
-			//			if (may_be_hand_contours.size() > 3)
-			//				may_be_hand_contours.pop_back();
-			//			break;
-			//		}
-			//		i++;
-			//	}
-			//}
-			//else{
 				std::vector<std::vector<cv::Point>>::iterator it = may_be_hand_contours.begin();
 				for (int i = 0; i < 3;i++){
 					if (sizes[i]<area){
