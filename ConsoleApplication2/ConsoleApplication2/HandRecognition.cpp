@@ -69,7 +69,6 @@ void HandRecognition::update(){
 
 	binarization();
 	findHand();
-	distTransform();
 ///////////////////////////////////////////////////////////
 
 ///////////////////////////////////////////////////////////
@@ -157,6 +156,7 @@ bool HandRecognition::getFingers(std::vector<cv::Point> contour){
 	contours.push_back(contour);
 	cv::rectangle(hand_img, cv::Point(0, 0), cv::Point(bin_img.cols, bin_img.rows), cv::Scalar(0, 0, 0, 0), -1);
 	cv::fillPoly(hand_img, contours, cv::Scalar(100, 100, 200));
+	distTransform();
 	hand_poly.clear();
 	for (int i = 0; i < 5; i++){
 		fingers[i] = cv::Point(0, 0);
@@ -184,7 +184,6 @@ bool HandRecognition::getFingers(std::vector<cv::Point> contour){
 		//‰šóŒ‡‘¹‚Ìæ“¾
 		cv::convexityDefects(hand_poly, hand_hull, convexityDefects);
 
-		distTransform();
 
 		mouseMode = notMouse;
 		int n = 0;
