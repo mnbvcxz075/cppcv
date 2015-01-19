@@ -52,7 +52,7 @@ private:
 	void distTransform();
 	void recognizeHandGesture();
 	void soatRegion(std::vector<std::vector<cv::Point>>);
-	bool getFingers();
+	bool getFingers(std::vector<cv::Point>);
 	double getCos(cv::Vec4i);
 
 

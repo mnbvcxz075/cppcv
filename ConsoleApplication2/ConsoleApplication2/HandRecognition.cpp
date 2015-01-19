@@ -68,9 +68,8 @@ void HandRecognition::update(){
 	}
 
 	binarization();
-	findHand();
-	//distTransform();
-	getFingers();
+//	findHand();
+	distTransform();
 ///////////////////////////////////////////////////////////
 
 ///////////////////////////////////////////////////////////
@@ -107,23 +106,16 @@ void HandRecognition::findHand(){
 
 	double max_size = 0;
 	soatRegion(contours);
-	for (std::vector<std::vector<cv::Point>>::iterator it = contours.begin(); it != contours.end(); it++){
-		double area_size = cv::contourArea(cv::Mat(*it));
-		if (area_size > max_size){
-			max_size = area_size;
-			handContour.clear();
+	for (std::vector<std::vector<cv::Point>>::iterator it = may_be_hand_contours.begin(); it != may_be_hand_contours.end(); it++){
+		if (getFingers(*it)){
 			handContour = *it;
+			break;
 		}
 	}
 	cv::rectangle(hand_img, cv::Point(0, 0), cv::Point(bin_img.cols, bin_img.rows), cv::Scalar(0, 0, 0, 0), -1);
 
 
-	if (handContour.size() > 2)
-		exist_contour = true;
-
-	if (exist_contour){
-		may_be_hand_contours.push_back(handContour);
-		cv::fillPoly(hand_hull, contours, cv::Scalar(0, 0, 255, 0));
+//		cv::fillPoly(hand_img, handContour, cv::Scalar(0, 0, 255, 0));
 		cv::Moments moments = cv::moments(handContour);
 		centroid = cv::Point(moments.m10 / moments.m00, moments.m01 / moments.m00);
 		cv::Scalar color;
@@ -134,15 +126,14 @@ void HandRecognition::findHand(){
 		default:color = cv::Scalar(0,0,0,0); break;
 		}
 		cv::circle(src_img, centroid, 5, color, -1);
-	}
 }
 
 void HandRecognition::distTransform(){
-	cv::distanceTransform(hand_img, dist_img, CV_DIST_L2, 3);
+	cv::distanceTransform(bin_img, dist_img, CV_DIST_L2, 3);
 
-	double *max_distance=0;
-	cv::Point* max_point=0;
-	cv::minMaxLoc(dist_img, NULL, max_distance, NULL, max_point);
+	double max_distance=0;
+	cv::Point max_point=0;
+	cv::minMaxLoc(dist_img, NULL, &max_distance, NULL, &max_point);
 
 	//float*ptr = (float*)dist_img.data;
 	//for (int i = 0; i < dist_img.rows; i++){
@@ -156,69 +147,76 @@ void HandRecognition::distTransform(){
 	//		ptr++;
 	//	}
 	//}
-	if (max_point){
-		cv::circle(src_img, *max_point, 5, cv::Scalar(0, 255, 0, 0), -1);
-	}
+		cv::circle(src_img, max_point, 5, cv::Scalar(0, 255, 0, 0), -1);
 
 }
 
-bool HandRecognition::getFingers(){
-	if (exist_contour){
-		cv::approxPolyDP(cv::Mat(handContour), hand_poly, 10, true);
-		if (hand_poly.size()>3){
-			int pnum = hand_poly.size();
-			for (int i = 0; i < pnum; ++i)
-				cv::line(hand_img, hand_poly[i], hand_poly[i + 1 < pnum ? i + 1 : 0], cv::Scalar(100, 100, 200), 2, CV_AA);
+bool HandRecognition::getFingers(std::vector<cv::Point> contour){
+	hand_poly.clear();
+	for (int i = 0; i < 5; i++){
+		fingers[i] = cv::Point(0, 0);
+		fingers2[i] = cv::Point(0, 0);
+	}
 
-			cv::convexHull(hand_poly, hand_hull, true);
+	//‹ßŽ—ƒ|ƒŠƒSƒ“‚ÌŽæ“¾
+	cv::approxPolyDP(cv::Mat(contour), hand_poly, 10, true);
+
+	if (hand_poly.size() > 3){
+		//‹ßŽ—ƒ|ƒŠƒSƒ“‚Ì•`‰æ
+		int pnum = hand_poly.size();
+		for (int i = 0; i < pnum; ++i)
+			cv::line(hand_img, hand_poly[i], hand_poly[i + 1 < pnum ? i + 1 : 0], cv::Scalar(100, 100, 200), 2, CV_AA);
+
+		//“Ê•ï‚ÌŽæ“¾
+		cv::convexHull(hand_poly, hand_hull, true);
 
 
-			int hnum = hand_hull.size();
-			for (int i = 0; i < hnum; ++i)
-				cv::line(hand_img, hand_poly[hand_hull[i]], hand_poly[hand_hull[i + 1 < hnum ? i + 1 : 0]], cv::Scalar(100, 100, 200), 2, CV_AA);
+		//“Ê•ï‚Ì•`‰æ
+		int hnum = hand_hull.size();
+		for (int i = 0; i < hnum; ++i)
+			cv::line(hand_img, hand_poly[hand_hull[i]], hand_poly[hand_hull[i + 1 < hnum ? i + 1 : 0]], cv::Scalar(100, 100, 200), 2, CV_AA);
 
+		//‰šóŒ‡‘¹‚ÌŽæ“¾
+		cv::convexityDefects(hand_poly, hand_hull, convexityDefects);
 
-			cv::convexityDefects(hand_poly, hand_hull, convexityDefects);
+		mouseMode = notMouse;
+		int n = 0;
 
-			for (int i = 0; i < 5; i++){
-				fingers[i] = cv::Point(0,0);
-				fingers2[i] = cv::Point(0, 0);
+		//
+		for (int i = 0; i < convexityDefects.size(); i++){
+			double cos = getCos(convexityDefects[i]);
+			if (cos>std::cos(1.7) && convexityDefects[i][3]>10000){
+				//fingers[n] = fingers[n].x == hand_poly[convexityDefects[i][0]].x
+				//				&& fingers[n].y == hand_poly[convexityDefects[i][0]].y
+				//			? hand_poly[convexityDefects[i][0]]
+				//			: cv::Point((fingers[n].x + hand_poly[convexityDefects[i][0]].x)/2
+				//				, (fingers[n].y + hand_poly[convexityDefects[i][0]].y) / 2);
+
+				//fingers2[n] = hand_poly[convexityDefects[i][2]];
+				//fingers[n+1] = hand_poly[convexityDefects[i][1]];
+				n++;
 			}
-
-			mouseMode = notMouse;
-			int n = 0;
-			for (int i = 0; i < convexityDefects.size(); i++){
-				double cos = getCos(convexityDefects[i]);
-				if (cos>std::cos(1.7) && convexityDefects[i][3]>10000){
-					//fingers[n] = fingers[n].x == hand_poly[convexityDefects[i][0]].x
-					//				&& fingers[n].y == hand_poly[convexityDefects[i][0]].y
-					//			? hand_poly[convexityDefects[i][0]]
-					//			: cv::Point((fingers[n].x + hand_poly[convexityDefects[i][0]].x)/2
-					//				, (fingers[n].y + hand_poly[convexityDefects[i][0]].y) / 2);
-
-					//fingers2[n] = hand_poly[convexityDefects[i][2]];
-					//fingers[n+1] = hand_poly[convexityDefects[i][1]];
-					cv::circle(src_img, hand_poly[convexityDefects[i][1]], 5, cv::Scalar(50 * i, 0, 0, 0), -1);
-					n++;
-				}
-			}		
-			if (n<=2){
-				return false;
-			}
-
-			if (n==4){
-				mouseMode = isMouse;
-			}else
-			if (n==3){
-				mouseMode = isTouched;
-			}
-			return true;
-			//for (int i = 0; i < 5; i++){
-			//	cv::circle(src_img, fingers[i], 5, cv::Scalar(50 * i,0, 0, 0), -1);
-			//	if(i!=5)
-			//		cv::circle(src_img, fingers2[i], 5, cv::Scalar(0, 0, 50 * i, 0), -1);
-			//}
 		}
+
+
+		if (n <= 2){
+			return false;
+		}
+
+		if (n == 4){
+			mouseMode = isMouse;
+		}
+		else
+		if (n == 3){
+			mouseMode = isTouched;
+		}
+		return true;
+		//for (int i = 0; i < 5; i++){
+		//	cv::circle(src_img, fingers[i], 5, cv::Scalar(50 * i,0, 0, 0), -1);
+		//	if(i!=5)
+		//		cv::circle(src_img, fingers2[i], 5, cv::Scalar(0, 0, 50 * i, 0), -1);
+		//}
+
 	}
 }
 
