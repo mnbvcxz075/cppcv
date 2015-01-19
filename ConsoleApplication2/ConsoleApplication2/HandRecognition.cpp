@@ -106,7 +106,6 @@ void HandRecognition::findHand(){
 
 	double max_size = 0;
 	soatRegion(contours);
-	contours.clear();
 
 	cv::rectangle(hand_img, cv::Point(0, 0), cv::Point(bin_img.cols, bin_img.rows), cv::Scalar(0, 0, 0, 0), -1);
 	cv::fillPoly(hand_img, may_be_hand_contours, cv::Scalar(255, 0, 0, 0));
@@ -120,7 +119,6 @@ void HandRecognition::findHand(){
 
 	if (handContour.size() == 0)
 		return;
-//		cv::fillPoly(hand_img, handContour, cv::Scalar(0, 0, 255, 0));
 		cv::Moments moments = cv::moments(handContour);
 		centroid = cv::Point(moments.m10 / moments.m00, moments.m01 / moments.m00);
 		cv::Scalar color;
@@ -157,7 +155,9 @@ void HandRecognition::distTransform(){
 }
 
 bool HandRecognition::getFingers(std::vector<cv::Point> contour){
-//	cv::polylines(hand_img, handContour, true, cv::Scalar(100, 100, 200),-1);
+	contours.clear();
+	contours.push_back(contour);
+	cv::fillPoly(hand_img, contours, cv::Scalar(100, 100, 200),);
 	hand_poly.clear();
 	for (int i = 0; i < 5; i++){
 		fingers[i] = cv::Point(0, 0);
