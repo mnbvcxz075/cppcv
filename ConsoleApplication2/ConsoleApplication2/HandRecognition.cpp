@@ -132,8 +132,7 @@ void HandRecognition::distTransform(){
 	cv::distanceTransform(bin_img, dist_img, CV_DIST_L2, 3);
 
 	double max_distance=0;
-	cv::Point max_point=0;
-	cv::minMaxLoc(dist_img, NULL, &max_distance, NULL, &max_point);
+	cv::minMaxLoc(dist_img, NULL, &max_distance, NULL, &maxDistPoint);
 
 	//float*ptr = (float*)dist_img.data;
 	//for (int i = 0; i < dist_img.rows; i++){
@@ -147,7 +146,7 @@ void HandRecognition::distTransform(){
 	//		ptr++;
 	//	}
 	//}
-		cv::circle(src_img, max_point, 5, cv::Scalar(0, 255, 0, 0), -1);
+	cv::circle(src_img, maxDistPoint, 5, cv::Scalar(0, 255, 0, 0), -1);
 
 }
 

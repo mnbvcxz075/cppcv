@@ -37,6 +37,7 @@ private:
 	std::vector<int> hand_hull;
 	std::vector<cv::Point> hand_poly;
 	std::vector<cv::Vec4i> convexityDefects;
+	cv::Point maxDistPoint;
 	cv::Point* fingers;
 	cv::Point* fingers2;
 
