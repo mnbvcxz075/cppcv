@@ -157,7 +157,7 @@ void HandRecognition::distTransform(){
 bool HandRecognition::getFingers(std::vector<cv::Point> contour){
 	contours.clear();
 	contours.push_back(contour);
-	cv::fillPoly(hand_img, contours, cv::Scalar(100, 100, 200),);
+	cv::fillPoly(hand_img, contours, cv::Scalar(100, 100, 200));
 	hand_poly.clear();
 	for (int i = 0; i < 5; i++){
 		fingers[i] = cv::Point(0, 0);
