@@ -72,6 +72,8 @@ void HandRecognition::update(){
 ///////////////////////////////////////////////////////////
 
 ///////////////////////////////////////////////////////////
+	cv::circle(src_img, maxDistPoint, 5, cv::Scalar(0, 255, 0, 0), -1);
+
 	cv::imshow(WINDOW_NAME, hand_img);
 	cv::imshow(WINDOW_NAME + '2', bin_img);
 	cv::imshow(WINDOW_NAME + '3', src_img);
@@ -146,7 +148,6 @@ void HandRecognition::distTransform(){
 	//		ptr++;
 	//	}
 	//}
-	cv::circle(src_img, maxDistPoint, 5, cv::Scalar(0, 255, 0, 0), -1);
 
 }
 
