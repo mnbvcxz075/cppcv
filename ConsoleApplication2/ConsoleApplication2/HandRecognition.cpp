@@ -106,13 +106,17 @@ void HandRecognition::findHand(){
 
 	double max_size = 0;
 	soatRegion(contours);
+	contours.clear();
+
+	cv::rectangle(hand_img, cv::Point(0, 0), cv::Point(bin_img.cols, bin_img.rows), cv::Scalar(0, 0, 0, 0), -1);
+	cv::fillPoly(hand_img, may_be_hand_contours, cv::Scalar(255, 0, 0, 0));
+
 	for (std::vector<std::vector<cv::Point>>::iterator it = may_be_hand_contours.begin(); it != may_be_hand_contours.end(); it++){
 		if (getFingers(*it)){
 			handContour = *it;
 			break;
 		}
 	}
-	cv::rectangle(hand_img, cv::Point(0, 0), cv::Point(bin_img.cols, bin_img.rows), cv::Scalar(0, 0, 0, 0), -1);
 
 	if (handContour.size() == 0)
 		return;
@@ -153,6 +157,7 @@ void HandRecognition::distTransform(){
 }
 
 bool HandRecognition::getFingers(std::vector<cv::Point> contour){
+//	cv::polylines(hand_img, handContour, true, cv::Scalar(100, 100, 200),-1);
 	hand_poly.clear();
 	for (int i = 0; i < 5; i++){
 		fingers[i] = cv::Point(0, 0);
@@ -173,20 +178,21 @@ bool HandRecognition::getFingers(std::vector<cv::Point> contour){
 
 
 		//“Ê•ï‚Ì•`‰æ
-		int hnum = hand_hull.size();
-		for (int i = 0; i < hnum; ++i)
-			cv::line(hand_img, hand_poly[hand_hull[i]], hand_poly[hand_hull[i + 1 < hnum ? i + 1 : 0]], cv::Scalar(100, 100, 200), 2, CV_AA);
+		//int hnum = hand_hull.size();
+		//for (int i = 0; i < hnum; ++i)
+		//	cv::line(hand_img, hand_poly[hand_hull[i]], hand_poly[hand_hull[i + 1 < hnum ? i + 1 : 0]], cv::Scalar(100, 100, 200), 2, CV_AA);
 
 		//‰šóŒ‡‘¹‚ÌŽæ“¾
 		cv::convexityDefects(hand_poly, hand_hull, convexityDefects);
 
+		distTransform();
+
 		mouseMode = notMouse;
 		int n = 0;
-
-		//
 		for (int i = 0; i < convexityDefects.size(); i++){
 			double cos = getCos(convexityDefects[i]);
 			if (cos>std::cos(1.7) && convexityDefects[i][3]>10000){
+				std::cout << distance(hand_poly[convexityDefects[i][2]], hand_poly[convexityDefects[i][0]])<<" "<< convexityDefects[i][3] << std::endl;
 				//fingers[n] = fingers[n].x == hand_poly[convexityDefects[i][0]].x
 				//				&& fingers[n].y == hand_poly[convexityDefects[i][0]].y
 				//			? hand_poly[convexityDefects[i][0]]
@@ -259,6 +265,10 @@ void HandRecognition::setMouseMode(int mode){
 }
 int HandRecognition::getMouseMode(){
 	return mouseMode;
+}
+
+double HandRecognition::distance(cv::Point p1, cv::Point p2){
+	return sqrt(std::pow(p1.x - p2.x, 2) + std::pow(p1.y - p2.y, 2));
 }
 
 

@@ -54,6 +54,7 @@ private:
 	void soatRegion(std::vector<std::vector<cv::Point>>);
 	bool getFingers(std::vector<cv::Point>);
 	double getCos(cv::Vec4i);
+	double distance(cv::Point p1, cv::Point p2);
 
 
 public:
