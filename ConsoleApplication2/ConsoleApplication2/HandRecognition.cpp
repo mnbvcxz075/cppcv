@@ -77,10 +77,10 @@ void HandRecognition::update(){
 
 	cv::resize(src_img, src_img, cv::Size(), 0.5, 0.5);
 	cv::resize(canny_img, canny_img, cv::Size(), 0.5, 0.5);
-//	cv::resize(hand_img, hand_img, cv::Size(), 0.5, 0.5);
-	cv::imshow(WINDOW_NAME, src_img);
+	cv::resize(gray_img, gray_img, cv::Size(), 0.5, 0.5);
+	cv::imshow(WINDOW_NAME, gray_img);
 	cv::imshow(WINDOW_NAME + '2', canny_img);
-//	cv::imshow(WINDOW_NAME + '3', src_img);
+	cv::imshow(WINDOW_NAME + '3', src_img);
 }
 
 void HandRecognition::binarization(){
