@@ -27,6 +27,8 @@ private:
 
 	cv::Mat img;
 	cv::Mat src_img;
+	cv::Mat gray_img;
+	cv::Mat canny_img;
 	cv::Mat bin_img;
 	cv::Mat hand_img;
 	cv::Mat dist_img;
@@ -46,7 +48,6 @@ private:
 	cv::VideoCapture capture;
 
 	int mouseMode;
-
 
 	void binarization();
 	void findHand();
