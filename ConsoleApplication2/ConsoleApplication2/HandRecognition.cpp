@@ -67,19 +67,19 @@ void HandRecognition::update(){
 		}
 	}
 
-//	binarization();
-//	findHand();
+	binarization();
+	findHand();
 ///////////////////////////////////////////////////////////
-	cv::cvtColor(src_img, gray_img, CV_BGR2GRAY);
-	cv::Canny(gray_img, canny_img, 10, 200);
+	//cv::cvtColor(src_img, gray_img, CV_BGR2GRAY);
+	//cv::Canny(gray_img, canny_img, 10, 200);
 ///////////////////////////////////////////////////////////
 //	cv::circle(src_img, maxDistPoint, 5, cv::Scalar(0, 255, 0, 0), -1);
 
 	cv::resize(src_img, src_img, cv::Size(), 0.5, 0.5);
-	cv::resize(canny_img, canny_img, cv::Size(), 0.5, 0.5);
-	cv::resize(gray_img, gray_img, cv::Size(), 0.5, 0.5);
-	cv::imshow(WINDOW_NAME, gray_img);
-	cv::imshow(WINDOW_NAME + '2', canny_img);
+	//cv::resize(canny_img, canny_img, cv::Size(), 0.5, 0.5);
+	//cv::resize(gray_img, gray_img, cv::Size(), 0.5, 0.5);
+	//cv::imshow(WINDOW_NAME, );
+	//cv::imshow(WINDOW_NAME + '2', canny_img);
 	cv::imshow(WINDOW_NAME + '3', src_img);
 }
 
