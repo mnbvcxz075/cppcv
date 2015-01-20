@@ -79,7 +79,7 @@ void HandRecognition::update(){
 	cv::resize(canny_img, canny_img, cv::Size(), 0.5, 0.5);
 //	cv::resize(hand_img, hand_img, cv::Size(), 0.5, 0.5);
 	cv::imshow(WINDOW_NAME, hand_img);
-	cv::imshow(WINDOW_NAME + '2', bin_img);
+	cv::imshow(WINDOW_NAME + '2', canny_img);
 //	cv::imshow(WINDOW_NAME + '3', src_img);
 }
 
