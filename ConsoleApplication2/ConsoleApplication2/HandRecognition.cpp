@@ -75,7 +75,7 @@ void HandRecognition::update(){
 	cv::TermCriteria tc;
 	tc.epsilon = 0.01;
 	tc.maxCount = 3;
-	cv::pyrMeanShiftFiltering(src_img,src_img,16,64,0,tc);
+	cv::pyrMeanShiftFiltering(src_img,src_img,4,64,0,tc);
 	std::cout << "nn" << std::endl;
 ///////////////////////////////////////////////////////////
 //	cv::circle(src_img, maxDistPoint, 5, cv::Scalar(0, 255, 0, 0), -1);
