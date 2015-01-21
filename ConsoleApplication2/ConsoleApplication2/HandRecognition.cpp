@@ -84,7 +84,7 @@ void HandRecognition::update(){
 	img = src_img.reshape(1,src_img.rows*src_img.cols);
 	img.convertTo(img,CV_32F);
 	cv::Mat centers;
-	cv::kmeans(img, 2, labels, cv::TermCriteria(CV_TERMCRIT_EPS | CV_TERMCRIT_ITER,10,1), 1, cv::KMEANS_RANDOM_CENTERS, centers);
+	cv::kmeans(img, 10, labels, cv::TermCriteria(CV_TERMCRIT_EPS | CV_TERMCRIT_ITER,10,1), 1, cv::KMEANS_RANDOM_CENTERS, centers);
 	
 	cv::Mat dst_img(src_img.size(), src_img.type());
 	cv::MatIterator_<cv::Vec3b> itd = dst_img.begin<cv::Vec3b>(),
