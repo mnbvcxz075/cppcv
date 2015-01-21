@@ -67,11 +67,12 @@ void HandRecognition::update(){
 		}
 	}
 
-	binarization();
-	findHand();
+	//binarization();
+	//findHand();
 ///////////////////////////////////////////////////////////
 	//cv::cvtColor(src_img, gray_img, CV_BGR2GRAY);
 	//cv::Canny(gray_img, canny_img, 10, 200);
+	cv::pyrMeanShiftFiltering(src_img,src_img,50,1);
 ///////////////////////////////////////////////////////////
 //	cv::circle(src_img, maxDistPoint, 5, cv::Scalar(0, 255, 0, 0), -1);
 
