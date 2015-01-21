@@ -16,15 +16,16 @@ int main(int argc, char** argv)
 		}
 	}
 
-	HandRecognition hand(cap);
+	HandRecognition hand(img);
 
 	hand.update();
 	HandMouse mouse(&hand);
 
 	while (cvWaitKey(1) == -1){
 		hand.update();
-		mouse.update();
+	//	mouse.update();
 	// VideoCapture デストラクタにより，カメラは自動的に終了処理されます
+	//	Sleep(10000);
 	}
 	return 0;
 }
