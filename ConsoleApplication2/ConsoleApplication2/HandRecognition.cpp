@@ -72,12 +72,32 @@ void HandRecognition::update(){
 ///////////////////////////////////////////////////////////
 	//cv::cvtColor(src_img, gray_img, CV_BGR2GRAY);
 	//cv::Canny(gray_img, canny_img, 10, 200);
-	cv::TermCriteria tc;
-	tc.epsilon = 0.1;
-	tc.maxCount = 30;
-	cv::pyrMeanShiftFiltering(src_img,src_img,8,64,0,tc);
-	std::cout << "nn" << std::endl;
+	//cv::TermCriteria tc;
+	//tc.epsilon = 0.1;
+	//tc.maxCount = 30;
+	//cv::pyrMeanShiftFiltering(src_img,src_img,8,64,0,tc);
+	//std::cout << "nn" << std::endl;
 ///////////////////////////////////////////////////////////
+
+	cv::Mat_<int> labels(img.size(), CV_32SC1);
+	cv::Mat img;
+	img = src_img.reshape(1,src_img.rows*src_img.cols);
+	img.convertTo(img,CV_32F);
+	cv::Mat centers;
+	cv::kmeans(img, 2, labels, cv::TermCriteria(CV_TERMCRIT_EPS | CV_TERMCRIT_ITER,10,1), 1, cv::KMEANS_RANDOM_CENTERS, centers);
+	
+	cv::Mat dst_img(src_img.size(), src_img.type());
+	cv::MatIterator_<cv::Vec3b> itd = dst_img.begin<cv::Vec3b>(),
+		itd_end = dst_img.end<cv::Vec3b>();
+	for (int i = 0; itd != itd_end; ++itd, ++i) {
+		cv::Vec3f &color = centers.at<cv::Vec3f>(labels(i), 0);
+		(*itd)[0] = cv::saturate_cast<uchar>(color[0]);
+		(*itd)[1] = cv::saturate_cast<uchar>(color[1]);
+		(*itd)[2] = cv::saturate_cast<uchar>(color[2]);
+	}
+
+///////////////////////////////////////////////////////////
+
 //	cv::circle(src_img, maxDistPoint, 5, cv::Scalar(0, 255, 0, 0), -1);
 
 	//binarization();
@@ -86,7 +106,7 @@ void HandRecognition::update(){
 	//cv::resize(gray_img, gray_img, cv::Size(), 0.5, 0.5);
 	//cv::imshow(WINDOW_NAME, );
 	//cv::imshow(WINDOW_NAME + '2', canny_img);
-	cv::imshow(WINDOW_NAME + '3', src_img);
+	cv::imshow(WINDOW_NAME + '3', dst_img);
 //	cv::imshow(WINDOW_NAME + '2', hand_img);
 }
 
