@@ -107,8 +107,9 @@ void HandRecognition::findHand(){
 	exist_contour = false;
 	hand_img.create(bin_img.size(), bin_img.type());
 
+	contours.clear();
 	cv::findContours(temp_img, contours, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_NONE);
-
+	contours.clear();
 	double max_size = 0;
 	soatRegion(contours);
 
