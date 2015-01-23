@@ -70,6 +70,7 @@ void HandRecognition::update(){
 	cv::resize(src_img, src_img, cv::Size(), 0.5, 0.5);
 
 	binarization();
+	cv::imshow(WINDOW_NAME, bin_img);
 	findHand();
 ///////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////
@@ -78,7 +79,6 @@ void HandRecognition::update(){
 
 //	cv::circle(src_img, maxDistPoint, 5, cv::Scalar(0, 255, 0, 0), -1);
 
-	cv::imshow(WINDOW_NAME, bin_img);
 	cv::imshow(WINDOW_NAME + '3', src_img);
 	cv::imshow(WINDOW_NAME + '2', hand_img);
 }
