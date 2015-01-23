@@ -19,7 +19,7 @@ HandRecognition::HandRecognition(){
 	cv::namedWindow(WINDOW_NAME + '2', 1);
 	cv::namedWindow(WINDOW_NAME + '3', 1);
 
-//	button = new ButtonWindow();
+	button = new ButtonWindow();
 
 }
 HandRecognition::HandRecognition(cv::Mat img)
