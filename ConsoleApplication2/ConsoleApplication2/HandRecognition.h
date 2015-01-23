@@ -57,6 +57,8 @@ private:
 	void distTransform();
 	void recognizeHandGesture();
 	void soatRegion(std::vector<std::vector<cv::Point>>);
+	void kmeanFiltering(cv::Mat, cv::Mat);
+	void meanShiftFiltering(cv::Mat, cv::Mat);
 	bool getFingers(std::vector<cv::Point>);
 	double getCos(cv::Vec4i);
 	double distance(cv::Point p1, cv::Point p2);
