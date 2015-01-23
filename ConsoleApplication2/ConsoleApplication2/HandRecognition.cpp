@@ -71,7 +71,7 @@ void HandRecognition::update(){
 
 	binarization();
 	cv::imshow(WINDOW_NAME, bin_img);
-	findHand();
+//	findHand();
 ///////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////
 
@@ -79,8 +79,6 @@ void HandRecognition::update(){
 
 //	cv::circle(src_img, maxDistPoint, 5, cv::Scalar(0, 255, 0, 0), -1);
 
-	cv::imshow(WINDOW_NAME + '3', src_img);
-	cv::imshow(WINDOW_NAME + '2', hand_img);
 }
 
 void HandRecognition::binarization(){
@@ -92,7 +90,10 @@ void HandRecognition::binarization(){
 	else{
 		cv::inRange(temp_img, cv::Scalar(0, lower[1], lower[2], 0), cv::Scalar(upper[0], upper[1], upper[2], 0), bin_img);
 		cv::inRange(temp_img, cv::Scalar(lower[0], lower[1], lower[2], 0), cv::Scalar(180, upper[1], upper[2], 0), hand_img);
-		cv::add(bin_img,hand_img,bin_img);
+
+		cv::imshow(WINDOW_NAME + '3', bin_img);
+		cv::imshow(WINDOW_NAME + '2', hand_img); 
+		cv::add(bin_img, hand_img, bin_img);
 
 	}
 
