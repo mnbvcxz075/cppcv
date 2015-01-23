@@ -97,9 +97,9 @@ void HandRecognition::binarization(){
 
 	}
 
-	cv::erode(bin_img, bin_img, cv::Mat(), cv::Point(-1, -1), 5);
-	cv::dilate(bin_img, bin_img, cv::Mat(), cv::Point(-1, -1), 8);
-	cv::erode(bin_img, bin_img, cv::Mat(), cv::Point(-1, -1), 3);
+	cv::erode(bin_img, bin_img, cv::Mat(), cv::Point(-1, -1), 2);
+	cv::dilate(bin_img, bin_img, cv::Mat(), cv::Point(-1, -1), 4);
+	cv::erode(bin_img, bin_img, cv::Mat(), cv::Point(-1, -1), 2);
 }
 
 
