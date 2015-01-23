@@ -2,10 +2,10 @@
 #include<cmath>
 HandRecognition::HandRecognition(){
 
-	upper[0] = 30;
+	upper[0] = 40;
 	lower[0] = 170;
-	upper[1] = 230;
-	lower[1] = 0;
+	upper[1] = 240;
+	lower[1] = 10;
 	upper[2] = 255;
 	lower[2] = 0;
 
