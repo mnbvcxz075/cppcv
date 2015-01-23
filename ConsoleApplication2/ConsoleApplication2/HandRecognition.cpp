@@ -12,8 +12,8 @@ HandRecognition::HandRecognition(){
 	exist_contour = false;
 	mouseMode = notMouse;
 
-	fingers = new cv::Point[5];
-	fingers2 = new cv::Point[5];
+	fingers = new cv::Point[NUM_OF_FINGER];
+	fingers2 = new cv::Point[NUM_OF_FINGER];
 
 	cv::namedWindow(WINDOW_NAME, 1);
 	cv::namedWindow(WINDOW_NAME + '2', 1);
@@ -84,7 +84,7 @@ void HandRecognition::update(){
 	img = src_img.reshape(1,src_img.rows*src_img.cols);
 	img.convertTo(img,CV_32F);
 	cv::Mat centers;
-	cv::kmeans(img, 4, labels, cv::TermCriteria(CV_TERMCRIT_EPS | CV_TERMCRIT_ITER,10,1), 1, cv::KMEANS_RANDOM_CENTERS, centers);
+	cv::kmeans(img, 5, labels, cv::TermCriteria(CV_TERMCRIT_EPS | CV_TERMCRIT_ITER,10,1), 5, cv::KMEANS_RANDOM_CENTERS, centers);
 	
 	cv::Mat dst_img(src_img.size(), src_img.type());
 	cv::MatIterator_<cv::Vec3b> itd = dst_img.begin<cv::Vec3b>(),

@@ -5,6 +5,9 @@
 
 
 class HandRecognition{
+private:
+	const int NUM_OF_FINGER = 5;
+
 public:
 	HandRecognition();
 	HandRecognition(const HandRecognition&);
