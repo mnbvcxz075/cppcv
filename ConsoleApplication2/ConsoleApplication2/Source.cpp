@@ -1,6 +1,7 @@
 #include <iostream>
 #include"HandRecognition.h"
 #include"HandMouse.h"
+#include"TimeCounter.h"
 
 
 int main(int argc, char** argv)
@@ -29,3 +30,5 @@ int main(int argc, char** argv)
 	}
 	return 0;
 }
+
+

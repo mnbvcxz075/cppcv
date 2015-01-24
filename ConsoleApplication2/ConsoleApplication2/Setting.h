@@ -5,6 +5,8 @@
 #include<Windows.h>
 #include<stdlib.h>
 
+#pragma comment(lib, "winmm.lib")
+
 static const std::string WINDOW_NAME("window");
 
 enum{
