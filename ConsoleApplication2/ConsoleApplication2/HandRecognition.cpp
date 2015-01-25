@@ -70,13 +70,15 @@ void HandRecognition::update(){
 	cv::resize(src_img, src_img, cv::Size(), 0.5, 0.5);
 
 	binarization();
-	cv::imshow(WINDOW_NAME, bin_img);
-//	findHand();
-///////////////////////////////////////////////////////////
+	findHand();
 ///////////////////////////////////////////////////////////
 
 ///////////////////////////////////////////////////////////
 
+///////////////////////////////////////////////////////////
+
+	cv::imshow(WINDOW_NAME + '3', bin_img);
+	cv::imshow(WINDOW_NAME + '2', hand_img);
 //	cv::circle(src_img, maxDistPoint, 5, cv::Scalar(0, 255, 0, 0), -1);
 
 }
@@ -91,8 +93,6 @@ void HandRecognition::binarization(){
 		cv::inRange(temp_img, cv::Scalar(0, lower[1], lower[2], 0), cv::Scalar(upper[0], upper[1], upper[2], 0), bin_img);
 		cv::inRange(temp_img, cv::Scalar(lower[0], lower[1], lower[2], 0), cv::Scalar(180, upper[1], upper[2], 0), hand_img);
 
-		cv::imshow(WINDOW_NAME + '3', bin_img);
-		cv::imshow(WINDOW_NAME + '2', hand_img); 
 		cv::add(bin_img, hand_img, bin_img);
 
 	}
@@ -108,9 +108,7 @@ void HandRecognition::findHand(){
 	exist_contour = false;
 	hand_img.create(bin_img.size(), bin_img.type());
 
-	contours.clear();
 	cv::findContours(temp_img, contours, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_NONE);
-	contours.clear();
 	double max_size = 0;
 	soatRegion(contours);
 
@@ -158,11 +156,34 @@ void HandRecognition::distTransform(){
 }
 
 bool HandRecognition::getFingers(std::vector<cv::Point> contour){
+	cv::Rect rect = cv::boundingRect(contour);
+	contour = movePoints(contour, rect.x, rect.y);
+	cv::Mat img = cv::Mat(rect.height,rect.width, CV_8U, cv::Scalar(0, 0, 0, 0));
+	std::vector<std::vector<cv::Point>> contours;
+	contours.push_back(contour);
+	cv::fillPoly(img, contours, cv::Scalar(100, 100, 200));
+
+	cv::Mat dist_img;
+	cv::distanceTransform(img.clone(), dist_img, CV_DIST_L2, 3);
+	cv::Point maxDistPoint;
+	cv::minMaxLoc(dist_img, NULL, NULL, NULL, &maxDistPoint);
+
+	cv::Point centroid = getCentroid(contour);
+	double cos = getCos(centroid, maxDistPoint, cv::Point(centroid.x, centroid.y + 10));
+	double rad = acos(cos);
+	contour = turnPoints(contour, rad,centroid);
+	cv::Rect rect2 = cv::boundingRect(contour);
+	contour = movePoints(contour, rect2.x, rect2.y);
+	img = cv::Mat(rect2.height, rect2.width, CV_8U);
 	contours.clear();
 	contours.push_back(contour);
-	cv::rectangle(hand_img, cv::Point(0, 0), cv::Point(bin_img.cols, bin_img.rows), cv::Scalar(0, 0, 0, 0), -1);
-	cv::fillPoly(hand_img, contours, cv::Scalar(100, 100, 200));
-	distTransform();
+	cv::rectangle(img, cv::Point(0, 0), cv::Point(rect2.width, rect2.height), cv::Scalar(0, 0, 0, 0), -1);
+	cv::fillPoly(img, contours, cv::Scalar(100, 100, 200));
+	cv::imshow(WINDOW_NAME, img);
+
+
+	hand_img = img;
+
 	hand_poly.clear();
 	for (int i = 0; i < 5; i++){
 		fingers[i] = cv::Point(0, 0);
@@ -234,9 +255,9 @@ bool HandRecognition::getFingers(std::vector<cv::Point> contour){
 POINT HandRecognition::getCentroid(){
 	POINT p = POINT();
 	if (exist_contour){
-		cv::Moments moments = cv::moments(handContour);
-		p.x = moments.m10 / moments.m00;
-		p.y = moments.m01 / moments.m00;
+		cv::Point point = getCentroid(handContour);
+		p.x = point.x;
+		p.y = point.y;
 	}
 	else{
 		p.x = 0; p.y = 0;
@@ -245,23 +266,23 @@ POINT HandRecognition::getCentroid(){
 	return p;
 }
 
-double HandRecognition::getCos(cv::Vec4i vec){
-	return
-		((hand_poly[vec[0]].x - hand_poly[vec[2]].x)
-		*(hand_poly[vec[1]].x - hand_poly[vec[2]].x)
-		+ (hand_poly[vec[0]].y - hand_poly[vec[2]].y)
-		*(hand_poly[vec[1]].y - hand_poly[vec[2]].y))
-		/ std::sqrt(
-		((hand_poly[vec[1]].x - hand_poly[vec[2]].x)
-		*(hand_poly[vec[1]].x - hand_poly[vec[2]].x)
-		+ (hand_poly[vec[1]].y - hand_poly[vec[2]].y)
-		*(hand_poly[vec[1]].y - hand_poly[vec[2]].y))
-		*
-		((hand_poly[vec[0]].x - hand_poly[vec[2]].x)
-		*(hand_poly[vec[0]].x - hand_poly[vec[2]].x)
-		+ (hand_poly[vec[0]].y - hand_poly[vec[2]].y)
-		*(hand_poly[vec[0]].y - hand_poly[vec[2]].y)));
+cv::Point HandRecognition::getCentroid(std::vector<cv::Point> contour){
+	cv::Point p ;
+	cv::Moments moments = cv::moments(contour);
+	p.x = moments.m10 / moments.m00;
+	p.y = moments.m01 / moments.m00;
+	return p;
+}
 
+double HandRecognition::getCos(cv::Vec4i vec){
+	return getCos(hand_poly[vec[2]], hand_poly[vec[0]], hand_poly[vec[1]]);
+}
+
+double HandRecognition::getCos(cv::Point a, cv::Point b, cv::Point c){
+	return
+		((b.x - a.x)*(c.x - a.x)+(b.y - a.y)*(c.y - a.y))
+		/ std::sqrt(((c.x - a.x)*(c.x - a.x)+(c.y - a.y)*(c.y - a.y))
+					*((b.x - a.x)*(b.x - a.x)+(b.y - a.y)*(b.y - a.y)));
 }
 
 void HandRecognition::setMouseMode(int mode){
@@ -333,5 +354,24 @@ void HandRecognition::meanShiftFiltering(cv::Mat src_img, cv::Mat dimg){
 	//tc.maxCount = 30;
 	//cv::pyrMeanShiftFiltering(src_img,src_img,8,64,0,tc);
 	//std::cout << "nn" << std::endl;
+
+}
+
+std::vector<cv::Point> HandRecognition::movePoints(std::vector<cv::Point> points, int x, int y){
+	for (std::vector<cv::Point>::iterator it = points.begin(); it != points.end(); it++){
+		it->x -= x;
+		it->y -= y;
+	}
+	return points;
+}
+
+std::vector<cv::Point> HandRecognition::turnPoints(std::vector<cv::Point> points, double rad,cv::Point center){
+	double turnMat[4] = { std::cos(rad), -std::sin(rad), std::sin(rad), std::cos(rad) };
+	for (std::vector<cv::Point>::iterator it = points.begin(); it != points.end(); it++){
+		double x = it->x, y = it->y;
+		it->x = x*turnMat[0] + y*turnMat[1];
+		it->y = x*turnMat[2] + y*turnMat[3];
+	}
+	return points;
 
 }

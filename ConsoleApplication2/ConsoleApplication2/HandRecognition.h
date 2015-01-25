@@ -61,7 +61,11 @@ private:
 	void meanShiftFiltering(cv::Mat, cv::Mat);
 	bool getFingers(std::vector<cv::Point>);
 	double getCos(cv::Vec4i);
+	double getCos(cv::Point, cv::Point, cv::Point);
 	double distance(cv::Point p1, cv::Point p2);
+	std::vector<cv::Point> movePoints(std::vector<cv::Point>, int, int);
+	std::vector<cv::Point> turnPoints(std::vector<cv::Point>, double, cv::Point);
+	cv::Point getCentroid(std::vector<cv::Point>);
 
 
 public:
