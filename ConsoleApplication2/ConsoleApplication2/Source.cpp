@@ -6,6 +6,7 @@
 
 int main(int argc, char** argv)
 {
+
 	cv::VideoCapture cap(0); // デフォルトカメラをオープン
 	cv::Mat img;
 	if (!cap.isOpened()){  // 成功したかどうかをチェック

@@ -36,6 +36,7 @@ private:
 	cv::Mat bin_img;
 	cv::Mat hand_img;
 	cv::Mat dist_img;
+	byte *UVSkinTable;
 	std::vector<cv::Point> handContour;
 	boolean exist_contour;
 	std::vector<std::vector<cv::Point>> contours;
@@ -53,6 +54,8 @@ private:
 	int mouseMode;
 
 	void binarization();
+	void binarization2();
+	void initUVSkinTable();
 	void findHand();
 	void recognizeHandGesture();
 	void soatRegion(std::vector<std::vector<cv::Point>>);
