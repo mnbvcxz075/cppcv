@@ -140,19 +140,6 @@ void HandRecognition::distTransform(){
 	double max_distance=0;
 	cv::minMaxLoc(dist_img, NULL, &max_distance, NULL, &maxDistPoint);
 
-	//float*ptr = (float*)dist_img.data;
-	//for (int i = 0; i < dist_img.rows; i++){
-	//	for (int j = 0; j < dist_img.cols; j++){
-	//		if (max_distance<*ptr){
-	//			max_distance = *ptr;
-	//			max_point.x = j;
-	//			max_point.y = i;
-	//			std::cout << *ptr << i << j << std::endl;
-	//		}
-	//		ptr++;
-	//	}
-	//}
-
 }
 
 bool HandRecognition::getFingers(std::vector<cv::Point> contour){
