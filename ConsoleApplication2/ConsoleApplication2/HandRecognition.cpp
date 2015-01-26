@@ -4,10 +4,10 @@ HandRecognition::HandRecognition(){
 
 	upper[0] = 35;
 	lower[0] = 170;
-	upper[1] = 180;
-	lower[1] = 10;
-	upper[2] = 255;
-	lower[2] = 0;
+	upper[1] = 255;
+	lower[1] = 60;
+	upper[2] = 250;
+	lower[2] = 10;
 
 	exist_contour = false;
 	mouseMode = notMouse;
