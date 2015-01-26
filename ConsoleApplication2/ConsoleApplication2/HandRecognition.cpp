@@ -184,7 +184,7 @@ bool HandRecognition::getFingers(std::vector<cv::Point> contour){
 		//‹ßŽ—ƒ|ƒŠƒSƒ“‚Ì•`‰æ
 		int pnum = hand_poly.size();
 		for (int i = 0; i < pnum; ++i)
-			cv::line(hand_img, hand_poly[i], hand_poly[i + 1 < pnum ? i + 1 : 0], cv::Scalar(100, 100, 200), 2, CV_AA);
+			cv::line(hand_img, hand_poly[i], hand_poly[i + 1 < pnum ? i + 1 : 0], cv::Scalar(255, 0, 0), 2, CV_AA);
 
 		//“Ê•ï‚ÌŽæ“¾
 		cv::convexHull(hand_poly, hand_hull, true);
@@ -193,7 +193,7 @@ bool HandRecognition::getFingers(std::vector<cv::Point> contour){
 		//“Ê•ï‚Ì•`‰æ
 		int hnum = hand_hull.size();
 		for (int i = 0; i < hnum; ++i)
-			cv::line(hand_img, hand_poly[hand_hull[i]], hand_poly[hand_hull[i + 1 < hnum ? i + 1 : 0]], cv::Scalar(100, 100, 200), 2, CV_AA);
+			cv::line(hand_img, hand_poly[hand_hull[i]], hand_poly[hand_hull[i + 1 < hnum ? i + 1 : 0]], cv::Scalar(255,0,0,0), 2, CV_AA);
 
 		//‰šóŒ‡‘¹‚ÌŽæ“¾
 		cv::convexityDefects(hand_poly, hand_hull, convexityDefects);
