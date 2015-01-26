@@ -54,7 +54,6 @@ private:
 
 	void binarization();
 	void findHand();
-	void distTransform();
 	void recognizeHandGesture();
 	void soatRegion(std::vector<std::vector<cv::Point>>);
 	void kmeanFiltering(cv::Mat, cv::Mat);

@@ -6,7 +6,7 @@
 
 int main(int argc, char** argv)
 {
-	cv::VideoCapture cap(1); // デフォルトカメラをオープン
+	cv::VideoCapture cap(0); // デフォルトカメラをオープン
 	cv::Mat img;
 	if (!cap.isOpened()){  // 成功したかどうかをチェック
 		if (argv[1] != NULL){
@@ -17,7 +17,7 @@ int main(int argc, char** argv)
 		}
 	}
 
-	HandRecognition hand(img);
+	HandRecognition hand(cap);
 
 	hand.update();
 	HandMouse mouse(&hand);

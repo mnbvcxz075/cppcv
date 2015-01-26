@@ -2,9 +2,9 @@
 #include<cmath>
 HandRecognition::HandRecognition(){
 
-	upper[0] = 40;
+	upper[0] = 35;
 	lower[0] = 170;
-	upper[1] = 240;
+	upper[1] = 180;
 	lower[1] = 10;
 	upper[2] = 255;
 	lower[2] = 0;
@@ -105,41 +105,31 @@ void HandRecognition::binarization(){
 void HandRecognition::findHand(){
 	temp_img = bin_img.clone();
 	exist_contour = false;
-	hand_img.create(bin_img.size(), bin_img.type());
+	hand_img = cv::Mat(bin_img.rows, bin_img.cols, CV_8U, cv::Scalar(0, 0, 0, 0));
 
 	cv::findContours(temp_img, contours, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_NONE);
 	double max_size = 0;
 	soatRegion(contours);
 
-
 	for (std::vector<std::vector<cv::Point>>::iterator it = may_be_hand_contours.begin(); it != may_be_hand_contours.end(); it++){
 		if (getFingers(*it)){
-
+			cv::Scalar color;
+			switch (mouseMode){
+			case notMouse:color = cv::Scalar(255, 0, 0, 0); break;
+			case isMouse:color = cv::Scalar(0, 0, 255, 0); break;
+			case isTouched:color = cv::Scalar(0, 255, 0, 0); break;
+			default:color = cv::Scalar(0, 0, 0, 0); break;
+			}
+			cv::circle(src_img, centroid, 5, color, -1);
 			break;
 		}
-	}
-
-	if (handContour.size() == 0)
-		return;
-		cv::Moments moments = cv::moments(handContour);
-		centroid = cv::Point(moments.m10 / moments.m00, moments.m01 / moments.m00);
-		cv::Scalar color;
-		switch (mouseMode){
-		case notMouse:color = cv::Scalar(255,0,0,0); break;
-		case isMouse:color = cv::Scalar(0,0,255,0); break;
-		case isTouched:color = cv::Scalar(0,255,0,0); break;
-		default:color = cv::Scalar(0,0,0,0); break;
+		else{
+			cv::rectangle(hand_img, cv::Point(0,0),cv::Point(hand_img.cols, hand_img.rows), cv::Scalar(0, 0, 0, 0), -1);
 		}
-		cv::circle(src_img, centroid, 5, color, -1);
+	}
+	cv::imshow(WINDOW_NAME, src_img);
 }
 
-void HandRecognition::distTransform(){
-	cv::distanceTransform(hand_img, dist_img, CV_DIST_L2, 3);
-
-	double max_distance=0;
-	cv::minMaxLoc(dist_img, NULL, &max_distance, NULL, &maxDistPoint);
-
-}
 
 bool HandRecognition::getFingers(std::vector<cv::Point> contour){
 	
@@ -156,12 +146,14 @@ bool HandRecognition::getFingers(std::vector<cv::Point> contour){
 	cv::Mat dist_img;
 	cv::distanceTransform(img.clone(), dist_img, CV_DIST_L2, 3);
 	cv::Point maxDistPoint;
+	this->maxDistPoint = cv::Point(maxDistPoint.x + rect.x, maxDistPoint.y + rect.y);
 	cv::minMaxLoc(dist_img, NULL, NULL, NULL, &maxDistPoint);
 
 	//重心を求め、重心と距離変換を用いて輪郭等を回転
 	cv::Point centroid = getCentroid(contour);
-	double cos = getCos(centroid, maxDistPoint, cv::Point(centroid.x, centroid.y + 10));
-	double rad = acos(cos);
+	this->centroid = cv::Point(centroid.x+rect.x,centroid.y+rect.y);
+	double cos = getCos(centroid, cv::Point(centroid.x, centroid.y + 10), maxDistPoint);
+	double rad = maxDistPoint.x*(centroid.y + 10)>maxDistPoint.y*centroid.x ? acos(cos) : -acos(cos);
 	contour = turnPoints(contour, rad, centroid);
 	maxDistPoint = turnPoints(maxDistPoint, rad, centroid);
 	cv::Rect rect2 = cv::boundingRect(contour);
@@ -177,7 +169,6 @@ bool HandRecognition::getFingers(std::vector<cv::Point> contour){
 	contours.push_back(contour);
 	cv::rectangle(img, cv::Point(0, 0), cv::Point(rect2.width, rect2.height), cv::Scalar(0, 0, 0, 0), -1);
 	cv::fillPoly(img, contours, cv::Scalar(255,0));
-	cv::imshow(WINDOW_NAME, img);
 
 
 	hand_img = cv::Mat(img.rows, img.cols, CV_8U, cv::Scalar(0, 0, 0, 0));
@@ -190,7 +181,7 @@ bool HandRecognition::getFingers(std::vector<cv::Point> contour){
 	}
 
 	//近似ポリゴンの取得
-	cv::approxPolyDP(cv::Mat(contour), hand_poly, 10, true);
+	cv::approxPolyDP(cv::Mat(contour), hand_poly, rect2.height/15, true);
 
 	if (hand_poly.size() > 3){
 		//近似ポリゴンの描画
@@ -213,7 +204,7 @@ bool HandRecognition::getFingers(std::vector<cv::Point> contour){
 		//指の候補でないものを削除&親指の確認
 		bool thumb = false;
 		for (std::vector<cv::Vec4i>::iterator it = convexityDefects.begin(); it!=convexityDefects.end();){
-			if (getCos(*it)>std::cos(1.7) && (*it)[3]>10000){
+			if (getCos(*it)>std::cos(1.7) && (*it)[3]>rect2.height*40){
 				if (hand_poly[(*it)[2]].y > centroid.y)//親指かどうかの判断
 					thumb = true;
 				it++;
@@ -224,17 +215,12 @@ bool HandRecognition::getFingers(std::vector<cv::Point> contour){
 		}
 
 		if (convexityDefects.size() > 2){
-			mouseMode = thumb ? isTouched : isMouse;
+			mouseMode = thumb ? isMouse : isTouched;
 		}
 		else return false;
 
 
 		return true;
-		//for (int i = 0; i < 5; i++){
-		//	cv::circle(src_img, fingers[i], 5, cv::Scalar(50 * i,0, 0, 0), -1);
-		//	if(i!=5)
-		//		cv::circle(src_img, fingers2[i], 5, cv::Scalar(0, 0, 50 * i, 0), -1);
-		//}
 
 	}
 }
