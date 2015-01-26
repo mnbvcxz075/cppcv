@@ -27,6 +27,7 @@ private:
 	ButtonWindow* button;
 
 	cv::Point centroid;
+	double handRad;
 
 	cv::Mat img;
 	cv::Mat src_img;
@@ -44,7 +45,6 @@ private:
 	std::vector<cv::Vec4i> convexityDefects;
 	cv::Point maxDistPoint;
 	cv::Point* fingers;
-	cv::Point* fingers2;
 
 
 	cv::Mat temp_img;
@@ -64,6 +64,8 @@ private:
 	double getCos(cv::Point, cv::Point, cv::Point);
 	double distance(cv::Point p1, cv::Point p2);
 	std::vector<cv::Point> movePoints(std::vector<cv::Point>, int, int);
+	cv::Point turnPoints(cv::Point, double[4], cv::Point);
+	cv::Point turnPoints(cv::Point, double, cv::Point);
 	std::vector<cv::Point> turnPoints(std::vector<cv::Point>, double, cv::Point);
 	cv::Point getCentroid(std::vector<cv::Point>);
 

@@ -13,7 +13,6 @@ HandRecognition::HandRecognition(){
 	mouseMode = notMouse;
 
 	fingers = new cv::Point[NUM_OF_FINGER];
-	fingers2 = new cv::Point[NUM_OF_FINGER];
 
 	cv::namedWindow(WINDOW_NAME, 1);
 	cv::namedWindow(WINDOW_NAME + '2', 1);
@@ -115,7 +114,7 @@ void HandRecognition::findHand(){
 
 	for (std::vector<std::vector<cv::Point>>::iterator it = may_be_hand_contours.begin(); it != may_be_hand_contours.end(); it++){
 		if (getFingers(*it)){
-			handContour = *it;
+
 			break;
 		}
 	}
@@ -144,6 +143,7 @@ void HandRecognition::distTransform(){
 
 bool HandRecognition::getFingers(std::vector<cv::Point> contour){
 	
+	
 	//輪郭の取得と輪郭画像の作成
 	cv::Rect rect = cv::boundingRect(contour);
 	contour = movePoints(contour, rect.x, rect.y);
@@ -158,13 +158,18 @@ bool HandRecognition::getFingers(std::vector<cv::Point> contour){
 	cv::Point maxDistPoint;
 	cv::minMaxLoc(dist_img, NULL, NULL, NULL, &maxDistPoint);
 
-	//重心を求め、重心と距離変換を用いて輪郭を回転
+	//重心を求め、重心と距離変換を用いて輪郭等を回転
 	cv::Point centroid = getCentroid(contour);
 	double cos = getCos(centroid, maxDistPoint, cv::Point(centroid.x, centroid.y + 10));
 	double rad = acos(cos);
-	contour = turnPoints(contour, rad,centroid);
+	contour = turnPoints(contour, rad, centroid);
+	maxDistPoint = turnPoints(maxDistPoint, rad, centroid);
 	cv::Rect rect2 = cv::boundingRect(contour);
 	contour = movePoints(contour, rect2.x, rect2.y);
+	maxDistPoint.x -= rect2.x;
+	maxDistPoint.y -= rect2.y;
+	centroid.x = -rect2.x;
+	centroid.y = -rect2.y;
 	img = cv::Mat(rect2.height, rect2.width, CV_8U);
 
 	//回転後の画像の作成
@@ -175,12 +180,13 @@ bool HandRecognition::getFingers(std::vector<cv::Point> contour){
 	cv::imshow(WINDOW_NAME, img);
 
 
-	hand_img = cv::Mat(img.rows,img.cols,CV_8U,cv::Scalar(0,0,0,0));
+	hand_img = cv::Mat(img.rows, img.cols, CV_8U, cv::Scalar(0, 0, 0, 0));
+	cv::circle(hand_img, maxDistPoint, 5, cv::Scalar(255, 0, 0, 0), -1);
+	cv::circle(hand_img, centroid, 5, cv::Scalar(255, 0, 0, 0), -1);
 
 	hand_poly.clear();
 	for (int i = 0; i < 5; i++){
 		fingers[i] = cv::Point(0, 0);
-		fingers2[i] = cv::Point(0, 0);
 	}
 
 	//近似ポリゴンの取得
@@ -204,10 +210,12 @@ bool HandRecognition::getFingers(std::vector<cv::Point> contour){
 		//凹状欠損の取得
 		cv::convexityDefects(hand_poly, hand_hull, convexityDefects);
 
-		//指の候補でないものを削除
+		//指の候補でないものを削除&親指の確認
+		bool thumb = false;
 		for (std::vector<cv::Vec4i>::iterator it = convexityDefects.begin(); it!=convexityDefects.end();){
 			if (getCos(*it)>std::cos(1.7) && (*it)[3]>10000){
-				if (hand_poly[(*it)[2]].y>)//親指かどうかの判断
+				if (hand_poly[(*it)[2]].y > centroid.y)//親指かどうかの判断
+					thumb = true;
 				it++;
 			}
 			else{
@@ -215,8 +223,10 @@ bool HandRecognition::getFingers(std::vector<cv::Point> contour){
 			}
 		}
 
-		//親指の探索
-
+		if (convexityDefects.size() > 2){
+			mouseMode = thumb ? isTouched : isMouse;
+		}
+		else return false;
 
 
 		return true;
@@ -342,12 +352,23 @@ std::vector<cv::Point> HandRecognition::movePoints(std::vector<cv::Point> points
 	return points;
 }
 
-std::vector<cv::Point> HandRecognition::turnPoints(std::vector<cv::Point> points, double rad,cv::Point center){
-	double turnMat[4] = { std::cos(rad), -std::sin(rad), std::sin(rad), std::cos(rad) };
+cv::Point HandRecognition::turnPoints(cv::Point point, double turnMat[4], cv::Point center){
+	double x = point.x - center.x, y = point.y - center.y;
+	point.x = x*turnMat[0] + y*turnMat[1];
+	point.y = x*turnMat[2] + y*turnMat[3];
+
+	return point;
+
+}
+cv::Point HandRecognition::turnPoints(cv::Point point, double rad, cv::Point center){
+	double mat[] = { std::cos(rad), -std::sin(rad), std::sin(rad), std::cos(rad) };
+	return turnPoints(point,mat,center);
+
+}
+std::vector<cv::Point> HandRecognition::turnPoints(std::vector<cv::Point> points, double rad, cv::Point center){
+	double mat[] = { std::cos(rad), -std::sin(rad), std::sin(rad), std::cos(rad) };
 	for (std::vector<cv::Point>::iterator it = points.begin(); it != points.end(); it++){
-		double x = it->x, y = it->y;
-		it->x = x*turnMat[0] + y*turnMat[1];
-		it->y = x*turnMat[2] + y*turnMat[3];
+		*it = turnPoints(*it, mat, center);
 	}
 	return points;
 
