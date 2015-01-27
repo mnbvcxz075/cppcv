@@ -53,6 +53,7 @@ private:
 
 	int mouseMode;
 
+	void static callback(int, int, int, int, void*);
 	void binarization();
 	void binarization2();
 	void initUVSkinTable();
@@ -71,7 +72,7 @@ private:
 	std::vector<cv::Point> turnPoints(std::vector<cv::Point>, double, cv::Point);
 	cv::Point getCentroid(std::vector<cv::Point>);
 
-
+	static int req_x, req_y;
 public:
 	POINT getCentroid();
 	void update();

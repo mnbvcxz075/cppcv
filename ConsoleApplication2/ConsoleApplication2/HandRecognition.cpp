@@ -1,11 +1,14 @@
 #include"HandRecognition.h"
 #include<cmath>
-HandRecognition::HandRecognition(){
 
+int HandRecognition::req_x, HandRecognition::req_y;
+
+HandRecognition::HandRecognition(){
+	req_x = req_y = -1;
 	upper[0] = 35;
 	lower[0] = 140;
-	upper[1] = 255;
-	lower[1] = 30;
+	upper[1] = 155;
+	lower[1] = 50;
 	upper[2] = 250;
 	lower[2] = 1;
 
@@ -15,6 +18,7 @@ HandRecognition::HandRecognition(){
 	fingers = new cv::Point[NUM_OF_FINGER];
 
 	cv::namedWindow(WINDOW_NAME, 1);
+	cv::setMouseCallback(WINDOW_NAME, HandRecognition::callback);
 	cv::namedWindow(WINDOW_NAME + '2', 1);
 	cv::namedWindow(WINDOW_NAME + '3', 0);
 	cv::namedWindow(WINDOW_NAME + '4', 0);
@@ -72,27 +76,21 @@ void HandRecognition::update(){
 //	cv::resize(src_img, src_img, cv::Size(), 0.5, 0.5);
 
 ///////////////////////////////////////////////////////////
-	//src_img = cv::Mat(256, 256, CV_8UC3, cv::Scalar(0, 0, 0, 0));
-	//byte* it = src_img.data;
-	//for (int i = 0; i < src_img.cols; i++){
-	//	for (int j = 0; j < src_img.rows; j++){
-	//		*it = 0;
-	//		it++;
-	//		*it = j;
-	//		it++;
-	//		*it = i;
-	//		it++;
-	//	}
 
-	//}
 ///////////////////////////////////////////////////////////
 
-	binarization2();
-//	findHand();
+	binarization();
+	findHand();
 ///////////////////////////////////////////////////////////
 
 	cv::imshow(WINDOW_NAME + '3', bin_img);
 	cv::imshow(WINDOW_NAME, src_img);
+	if(req_x!=-1){
+		byte* it = src_img.data;
+		it += req_y*src_img.step[0] + req_x*src_img.step[1];
+		std::cout << (int)(*(it + 2)) << "," << (int)(*(it + 1)) << "," << (int)(*it) << std::endl;
+		req_x = -1;
+	}
 //	cv::imshow(WINDOW_NAME + '2', hand_img);
 //	cv::circle(src_img, maxDistPoint, 5, cv::Scalar(0, 255, 0, 0), -1);
 
@@ -159,7 +157,7 @@ void HandRecognition::initUVSkinTable(){
 			for (int k = 0; k < 256 ;k++){
 				double u = k*0.2468 - j*0.5318 + i*0.2850 - 7.3738;
 				double v = k*0.4665 - j*0.0478 - i*0.4178;
-				if (u>-10 && 10>u&&v>2 && 33>v){
+				if (u>-14 && 10>u&&v>-1 && 33>v){
 					//std::cout << i << ","<<j<<","<<k<<std::endl;
 					switch (k % 8){
 					case 0:*it += 0x00000001; break;
@@ -235,23 +233,24 @@ bool HandRecognition::getFingers(std::vector<cv::Point> contour){
 	//重心を求め、重心と距離変換を用いて輪郭等を回転
 	cv::Point centroid = getCentroid(contour);
 	this->centroid = cv::Point(centroid.x+rect.x,centroid.y+rect.y);
-	double cos = getCos(centroid, cv::Point(centroid.x, centroid.y + 10), maxDistPoint);
-	double rad = maxDistPoint.x*(centroid.y + 10)>maxDistPoint.y*centroid.x ? acos(cos) : -acos(cos);
-	contour = turnPoints(contour, rad, centroid);
-	maxDistPoint = turnPoints(maxDistPoint, rad, centroid);
-	cv::Rect rect2 = cv::boundingRect(contour);
-	contour = movePoints(contour, rect2.x, rect2.y);
-	maxDistPoint.x -= rect2.x;
-	maxDistPoint.y -= rect2.y;
-	centroid.x = -rect2.x;
-	centroid.y = -rect2.y;
-	img = cv::Mat(rect2.height, rect2.width, CV_8U);
+
+	//double cos = getCos(centroid, cv::Point(centroid.x, centroid.y + 10), maxDistPoint);
+	//double rad = maxDistPoint.x*(centroid.y + 10)>maxDistPoint.y*centroid.x ? acos(cos) : -acos(cos);
+	//contour = turnPoints(contour, rad, centroid);
+	//maxDistPoint = turnPoints(maxDistPoint, rad, centroid);
+	//cv::Rect rect2 = cv::boundingRect(contour);
+	//contour = movePoints(contour, rect2.x, rect2.y);
+	//maxDistPoint.x -= rect2.x;
+	//maxDistPoint.y -= rect2.y;
+	//centroid.x = -rect2.x;
+	//centroid.y = -rect2.y;
+	//img = cv::Mat(rect2.height, rect2.width, CV_8U);
 
 	//回転後の画像の作成
-	contours.clear();
-	contours.push_back(contour);
-	cv::rectangle(img, cv::Point(0, 0), cv::Point(rect2.width, rect2.height), cv::Scalar(0, 0, 0, 0), -1);
-	cv::fillPoly(img, contours, cv::Scalar(255,0));
+	//contours.clear();
+	//contours.push_back(contour);
+	//cv::rectangle(img, cv::Point(0, 0), cv::Point(rect2.width, rect2.height), cv::Scalar(0, 0, 0, 0), -1);
+	//cv::fillPoly(img, contours, cv::Scalar(255,0));
 
 
 	hand_img = cv::Mat(img.rows, img.cols, CV_8U, cv::Scalar(0, 0, 0, 0));
@@ -264,7 +263,7 @@ bool HandRecognition::getFingers(std::vector<cv::Point> contour){
 	}
 
 	//近似ポリゴンの取得
-	cv::approxPolyDP(cv::Mat(contour), hand_poly, rect2.height/15, true);
+	cv::approxPolyDP(cv::Mat(contour), hand_poly, rect.height/15, true);
 
 	if (hand_poly.size() > 3){
 		//近似ポリゴンの描画
@@ -285,11 +284,11 @@ bool HandRecognition::getFingers(std::vector<cv::Point> contour){
 		cv::convexityDefects(hand_poly, hand_hull, convexityDefects);
 
 		//指の候補でないものを削除&親指の確認
-		bool thumb = false;
+//		bool thumb = false;
 		for (std::vector<cv::Vec4i>::iterator it = convexityDefects.begin(); it!=convexityDefects.end();){
-			if (getCos(*it)>std::cos(1.7) && (*it)[3]>rect2.height*40){
-				if (hand_poly[(*it)[2]].y > centroid.y)//親指かどうかの判断
-					thumb = true;
+			if (getCos(*it)>std::cos(1.7) && (*it)[3]>rect.height*40){
+				//if (hand_poly[(*it)[2]].y > centroid.y)//親指かどうかの判断
+				//	thumb = true;
 				it++;
 			}
 			else{
@@ -298,9 +297,12 @@ bool HandRecognition::getFingers(std::vector<cv::Point> contour){
 		}
 
 		if (convexityDefects.size() > 2){
-			mouseMode = thumb ? isMouse : isTouched;
+			mouseMode = convexityDefects.size() == 3 ? isTouched : isMouse;
 		}
-		else return false;
+		else {
+			mouseMode = notMouse;
+			return false;
+		}
 
 
 		return true;
@@ -360,7 +362,7 @@ void HandRecognition::soatRegion(std::vector<std::vector<cv::Point>> contour){
 	for (std::vector<cv::Point> con:contour){
 		area = cv::contourArea(con);
 		if (area > 640 * 480 / 100){
-			std::cout << area << " ";
+			//std::cout << area << " ";
 				std::vector<std::vector<cv::Point>>::iterator it = may_be_hand_contours.begin();
 				for (int i = 0; i < 3;i++){
 					if (sizes[i]<area){
@@ -378,7 +380,7 @@ void HandRecognition::soatRegion(std::vector<std::vector<cv::Point>> contour){
 //			}
 		}
 	}
-	std::cout << std::endl;
+	//std::cout << std::endl;
 }
 
 void HandRecognition::kmeanFiltering(cv::Mat src_img, cv::Mat dimg){
@@ -441,4 +443,11 @@ std::vector<cv::Point> HandRecognition::turnPoints(std::vector<cv::Point> points
 	}
 	return points;
 
+}
+
+void HandRecognition::callback(int event, int x, int y, int flags, void* param){
+	if (event==CV_EVENT_LBUTTONDOWN){
+		req_x = x;
+		req_y = y;
+	}
 }
