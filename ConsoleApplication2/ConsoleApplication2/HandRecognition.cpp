@@ -72,19 +72,19 @@ void HandRecognition::update(){
 //	cv::resize(src_img, src_img, cv::Size(), 0.5, 0.5);
 
 ///////////////////////////////////////////////////////////
-//	src_img = cv::Mat(256, 256, CV_8UC3, cv::Scalar(0, 0, 0, 0));
-//	byte* it = src_img.data;
-//	for (int i = 0; i < src_img.cols; i++){
-//		for (int j = 0; j < src_img.rows; j++){
-//			*it = 0;
-//			it++;
-//			*it = j;
-//			it++;
-//			*it = i;
-//			it++;
-//		}
-//
-//	}
+	//src_img = cv::Mat(256, 256, CV_8UC3, cv::Scalar(0, 0, 0, 0));
+	//byte* it = src_img.data;
+	//for (int i = 0; i < src_img.cols; i++){
+	//	for (int j = 0; j < src_img.rows; j++){
+	//		*it = 0;
+	//		it++;
+	//		*it = j;
+	//		it++;
+	//		*it = i;
+	//		it++;
+	//	}
+
+	//}
 ///////////////////////////////////////////////////////////
 
 	binarization2();
@@ -152,15 +152,14 @@ void HandRecognition::binarization2(){
 
 void HandRecognition::initUVSkinTable(){
 	byte* it = UVSkinTable;
-	byte* end = UVSkinTable+256*256*256/8;
 	int i = 0;
 	*it = 0;
 	for (int i = 0; i < 256 ; i++){
 		for (int j = 0; j < 256;j++){
 			for (int k = 0; k < 256 ;k++){
 				double u = k*0.2468 - j*0.5318 + i*0.2850 - 7.3738;
-				double v = k*0.4665 - j*0.0478 - k*0.4178;
-				if (u>-15 && 15>u&&v>0 && 33>v){
+				double v = k*0.4665 - j*0.0478 - i*0.4178;
+				if (u>-10 && 10>u&&v>2 && 33>v){
 					//std::cout << i << ","<<j<<","<<k<<std::endl;
 					switch (k % 8){
 					case 0:*it += 0x00000001; break;
@@ -181,7 +180,6 @@ void HandRecognition::initUVSkinTable(){
 		}
 	}
 
-	std::cout << std::endl;
 
 }
 
