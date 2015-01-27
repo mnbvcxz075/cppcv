@@ -179,7 +179,6 @@ void HandRecognition::initUVSkinTable(){
 
 }
 
-
 void HandRecognition::findHand(){
 	temp_img = bin_img.clone();
 	exist_contour = false;
@@ -206,7 +205,6 @@ void HandRecognition::findHand(){
 		}
 	}
 }
-
 
 bool HandRecognition::getFingers(std::vector<cv::Point> contour){
 	
@@ -323,14 +321,7 @@ cv::Point HandRecognition::getCentroid(std::vector<cv::Point> contour){
 }
 
 double HandRecognition::getCos(cv::Vec4i vec){
-	return getCos(hand_poly[vec[2]], hand_poly[vec[0]], hand_poly[vec[1]]);
-}
-
-double HandRecognition::getCos(cv::Point a, cv::Point b, cv::Point c){
-	return
-		((b.x - a.x)*(c.x - a.x)+(b.y - a.y)*(c.y - a.y))
-		/ std::sqrt(((c.x - a.x)*(c.x - a.x)+(c.y - a.y)*(c.y - a.y))
-					*((b.x - a.x)*(b.x - a.x)+(b.y - a.y)*(b.y - a.y)));
+	return UsePoints::getCos(hand_poly[vec[2]], hand_poly[vec[0]], hand_poly[vec[1]]);
 }
 
 void HandRecognition::setMouseMode(int mode){
@@ -339,11 +330,6 @@ void HandRecognition::setMouseMode(int mode){
 int HandRecognition::getMouseMode(){
 	return mouseMode;
 }
-
-double HandRecognition::distance(cv::Point p1, cv::Point p2){
-	return sqrt(std::pow(p1.x - p2.x, 2) + std::pow(p1.y - p2.y, 2));
-}
-
 
 void HandRecognition::soatRegion(std::vector<std::vector<cv::Point>> contour){
 	double area = 0;
@@ -413,23 +399,10 @@ std::vector<cv::Point> HandRecognition::movePoints(std::vector<cv::Point> points
 	return points;
 }
 
-cv::Point HandRecognition::turnPoints(cv::Point point, double turnMat[4], cv::Point center){
-	double x = point.x - center.x, y = point.y - center.y;
-	point.x = x*turnMat[0] + y*turnMat[1];
-	point.y = x*turnMat[2] + y*turnMat[3];
-
-	return point;
-
-}
-cv::Point HandRecognition::turnPoints(cv::Point point, double rad, cv::Point center){
-	double mat[] = { std::cos(rad), -std::sin(rad), std::sin(rad), std::cos(rad) };
-	return turnPoints(point,mat,center);
-
-}
 std::vector<cv::Point> HandRecognition::turnPoints(std::vector<cv::Point> points, double rad, cv::Point center){
 	double mat[] = { std::cos(rad), -std::sin(rad), std::sin(rad), std::cos(rad) };
 	for (std::vector<cv::Point>::iterator it = points.begin(); it != points.end(); it++){
-		*it = turnPoints(*it, mat, center);
+		*it = UsePoints::turnPoints(*it, mat, center);
 	}
 	return points;
 
