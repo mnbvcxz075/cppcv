@@ -71,7 +71,7 @@ void HandRecognition::update(){
 		}
 	}
 
-//	cv::resize(src_img, src_img, cv::Size(), 0.5, 0.5);
+	cv::resize(src_img, src_img, cv::Size(), 0.5, 0.5);
 
 ///////////////////////////////////////////////////////////
 
