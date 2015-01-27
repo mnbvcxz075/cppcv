@@ -15,7 +15,9 @@ private:
 	int next_index;
 	POINT mouse_point;
 	int moveCount;
-	bool isMove;
+	int touchedCount;
+	bool touched;
+	bool handd;
 
 	HandRecognition* hand;
 

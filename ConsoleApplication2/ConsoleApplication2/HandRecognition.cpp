@@ -6,11 +6,11 @@ int HandRecognition::req_x, HandRecognition::req_y;
 HandRecognition::HandRecognition(){
 	req_x = req_y = -1;
 	upper[0] = 35;
-	lower[0] = 140;
-	upper[1] = 155;
-	lower[1] = 50;
+	lower[0] = 148;
+	upper[1] = 150;
+	lower[1] = 20;
 	upper[2] = 250;
-	lower[2] = 1;
+	lower[2] = 15;
 
 	exist_contour = false;
 	mouseMode = notMouse;
@@ -20,8 +20,6 @@ HandRecognition::HandRecognition(){
 	cv::namedWindow(WINDOW_NAME, 1);
 	cv::setMouseCallback(WINDOW_NAME, HandRecognition::callback);
 	cv::namedWindow(WINDOW_NAME + '2', 1);
-	cv::namedWindow(WINDOW_NAME + '3', 0);
-	cv::namedWindow(WINDOW_NAME + '4', 0);
 
 	UVSkinTable = (byte*)malloc(256 * 256 * 256/8);
 	initUVSkinTable();
@@ -83,7 +81,7 @@ void HandRecognition::update(){
 	findHand();
 ///////////////////////////////////////////////////////////
 
-	cv::imshow(WINDOW_NAME + '3', bin_img);
+	cv::imshow(WINDOW_NAME + '2', bin_img);
 	cv::imshow(WINDOW_NAME, src_img);
 	if(req_x!=-1){
 		byte* it = src_img.data;
@@ -207,7 +205,6 @@ void HandRecognition::findHand(){
 			cv::rectangle(hand_img, cv::Point(0,0),cv::Point(hand_img.cols, hand_img.rows), cv::Scalar(0, 0, 0, 0), -1);
 		}
 	}
-	cv::imshow(WINDOW_NAME, src_img);
 }
 
 
@@ -221,7 +218,6 @@ bool HandRecognition::getFingers(std::vector<cv::Point> contour){
 	std::vector<std::vector<cv::Point>> contours;
 	contours.push_back(contour);
 	cv::fillPoly(img, contours, cv::Scalar(255, 0, 0));
-	cv::imshow(WINDOW_NAME + '4', img);
 
 	//ó÷äsâÊëúÇ©ÇÁãóó£ïœä∑âÊëúÇÃçÏê¨
 	cv::Mat dist_img;
@@ -312,14 +308,8 @@ bool HandRecognition::getFingers(std::vector<cv::Point> contour){
 
 POINT HandRecognition::getCentroid(){
 	POINT p = POINT();
-	if (exist_contour){
-		cv::Point point = getCentroid(handContour);
-		p.x = point.x;
-		p.y = point.y;
-	}
-	else{
-		p.x = 0; p.y = 0;
-	}
+	p.x = centroid.x;
+	p.y = centroid.y;
 
 	return p;
 }
