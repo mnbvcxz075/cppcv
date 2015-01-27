@@ -439,5 +439,7 @@ void HandRecognition::callback(int event, int x, int y, int flags, void* param){
 	if (event==CV_EVENT_LBUTTONDOWN){
 		req_x = x;
 		req_y = y;
+		mousemouse = mousemouse ? false : true;
 	}
 }
+bool HandRecognition::mousemouse = false;

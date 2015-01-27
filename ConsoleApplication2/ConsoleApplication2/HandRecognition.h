@@ -9,6 +9,7 @@ private:
 	const int NUM_OF_FINGER = 5;
 
 public:
+	static bool mousemouse;
 	HandRecognition();
 	HandRecognition(const HandRecognition&);
 	HandRecognition(cv::Mat);

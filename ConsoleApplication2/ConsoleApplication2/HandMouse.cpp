@@ -23,7 +23,7 @@ HandMouse::~HandMouse(){
 
 
 void HandMouse::update(){
-	if( hand->getMouseMode() == notMouse)return;
+	if( hand->getMouseMode() == notMouse||!hand->mousemouse)return;
 	const POINT p=hand->getCentroid();
 	if (p.x - privious_point.x > -20 && p.x - privious_point.x<20 && p.y - privious_point.y>-20 && p.y - privious_point.y < 20){
 		setNextPoint(p);
