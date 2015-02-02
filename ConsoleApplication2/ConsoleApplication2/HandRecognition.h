@@ -3,11 +3,13 @@
 #include"Setting.h"
 #include"ButtonWindow.h"
 #include"UsePoints.h"
+#include"HandLog.h"
 
 
 class HandRecognition{
 private:
 	const int NUM_OF_FINGER = 5;
+	HandLog* log;
 
 public:
 	static bool mousemouse;

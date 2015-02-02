@@ -13,6 +13,7 @@ HandRecognition::HandRecognition(){
 	lower[2] = 100;
 
 	mouseMode = notMouse;
+	log = new HandLog();
 
 	fingers = new cv::Point[NUM_OF_FINGER];
 
@@ -290,6 +291,8 @@ bool HandRecognition::getFingers(std::vector<cv::Point> contour){
 				it = convexityDefects.erase(it);
 			}
 		}
+
+
 		if (convexityDefects.size() > 2){
 			mouseMode = convexityDefects.size() == 3 ? isTouched : isMouse;
 		}
