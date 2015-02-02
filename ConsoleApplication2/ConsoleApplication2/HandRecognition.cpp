@@ -206,15 +206,76 @@ void HandRecognition::findHand(){
 }
 
 bool HandRecognition::getFingers(std::vector<cv::Point> contour){
-	
-
+	//輪郭がはみ出ていたら手でないと判定
 	cv::Rect rect = cv::boundingRect(contour);
-
-	if (rect.x == 1 || rect.y == 1 || rect.x + rect.width > src_img.cols-1 || rect.y + rect.height > src_img.rows-1)
+	if (rect.x == 1 || rect.y == 1 || rect.x + rect.width > src_img.cols - 1 || rect.y + rect.height > src_img.rows - 1)
 		return false;
 
-	//輪郭画像の作成
+	//輪郭を左上に寄せる
 	contour = movePoints(contour, rect.x, rect.y);
+
+	//近似ポリゴンの取得
+	cv::approxPolyDP(cv::Mat(contour), hand_poly, rect.height / 15, true);
+
+	if (hand_poly.size() < 4)
+		return false;
+
+		//近似ポリゴンの描画
+		for (int i = 0; i < hand_poly.size(); ++i)
+			cv::line(hand_img, hand_poly[i], hand_poly[i + 1 < hand_poly.size() ? i + 1 : 0], cv::Scalar(255, 0, 0), 2, CV_AA);
+
+		//凸包の取得
+		cv::convexHull(hand_poly, hand_hull, true);
+
+		//凸包の描画
+		int hnum = hand_hull.size();
+		for (int i = 0; i < hnum; ++i)
+			cv::line(hand_img, hand_poly[hand_hull[i]], hand_poly[hand_hull[i + 1 < hnum ? i + 1 : 0]], cv::Scalar(255, 0, 0, 0), 2, CV_AA);
+
+		//凹状欠損の取得
+		cv::convexityDefects(hand_poly, hand_hull, convexityDefects);
+		if (convexityDefects.size() < 2)//
+			return false;
+	
+		std::vector<cv::Point> fingers;
+		std::vector<cv::Point> temp;
+
+		//指の候補でないものを削除&親指の確認
+		for (std::vector<cv::Vec4i>::iterator it = convexityDefects.begin(); it != convexityDefects.end();){
+			double cos = UsePoints::getCos(hand_poly[(*it)[2]], hand_poly[(*it)[0]], hand_poly[(*it)[1]]);
+			if (cos>std::cos(1.7) && (*it)[3]>rect.height * 40){
+				temp.push_back(hand_poly[(*it)[0]]);
+				temp.push_back(hand_poly[(*it)[1]]);
+				it++;
+			}
+			else{
+				it = convexityDefects.erase(it);
+			}
+		}	
+
+	//同じ指のダブりを消す
+	for (int i = 0; i<temp.size() / 2; i++){
+			int a = (i * 2 + 1) % temp.size();
+			int b = (i * 2 + 2) % temp.size();
+			double d = UsePoints::distance(temp[a], temp[b]);
+			if (d<rect.width / 2){
+				fingers.push_back(cv::Point((temp[(i * 2 + 1) % temp.size()].x + temp[(i * 2 + 2) % temp.size()].x) / 2
+					, (temp[(i * 2 + 1) % temp.size()].y + temp[(i * 2 + 2) % temp.size()].y) / 2));
+			}
+			else{
+				fingers.push_back(temp[(i * 2 + 1) % temp.size()]);
+				fingers.push_back(temp[(i * 2 + 2) % temp.size()]);
+			}
+		}
+
+		if (temp.size() < 3){//指先候補が２本以下なら手でない
+			return false;
+		}
+
+
+
+
+	//輪郭画像の作成
 	cv::Mat img = cv::Mat(rect.height,rect.width, CV_8U, cv::Scalar(0, 0, 0, 0));
 	std::vector<std::vector<cv::Point>> contours;
 	contours.push_back(contour);
@@ -235,9 +296,11 @@ bool HandRecognition::getFingers(std::vector<cv::Point> contour){
 	double cos = UsePoints::getCos(centroid, cv::Point(centroid.x, centroid.y + 10), maxDistPoint);
 	double rad = maxDistPoint.x*(centroid.y + 10)>maxDistPoint.y*centroid.x ? acos(cos) : -acos(cos);
 	contour = turnPoints(contour, rad, centroid);
+	fingers = turnPoints(fingers, rad, centroid);
 	maxDistPoint = UsePoints::turnPoints(maxDistPoint, rad, centroid);
 	cv::Rect rect2 = cv::boundingRect(contour);
 	contour = movePoints(contour, rect2.x, rect2.y);
+	fingers = movePoints(fingers, rect2.x, rect2.y);
 	maxDistPoint.x -= rect2.x;
 	maxDistPoint.y -= rect2.y;
 	centroid.x = -rect2.x;
@@ -258,75 +321,8 @@ bool HandRecognition::getFingers(std::vector<cv::Point> contour){
 	cv::circle(hand_img, maxDistPoint, 5, cv::Scalar(255, 0, 0, 0), -1);
 	cv::circle(hand_img, centroid, 5, cv::Scalar(255, 0, 0, 0), -1);
 
-	for (int i = 0; i < 5; i++){
-		fingers[i] = cv::Point(0, 0);
-	}
-
-	//近似ポリゴンの取得
-	cv::approxPolyDP(cv::Mat(contour), hand_poly, rect.height/15, true);
-
-	if (hand_poly.size() > 3){
-		//近似ポリゴンの描画
-		int pnum = hand_poly.size();
-		for (int i = 0; i < pnum; ++i)
-			cv::line(hand_img, hand_poly[i], hand_poly[i + 1 < pnum ? i + 1 : 0], cv::Scalar(255, 0, 0), 2, CV_AA);
-
-		//凸包の取得
-		cv::convexHull(hand_poly, hand_hull, true);
-
-		//凸包の描画
-		int hnum = hand_hull.size();
-		for (int i = 0; i < hnum; ++i)
-			cv::line(hand_img, hand_poly[hand_hull[i]], hand_poly[hand_hull[i + 1 < hnum ? i + 1 : 0]], cv::Scalar(255,0,0,0), 2, CV_AA);
-
-		//凹状欠損の取得
-		cv::convexityDefects(hand_poly, hand_hull, convexityDefects);
-		std::vector<cv::Point> temp;
-		//指の候補でないものを削除&親指の確認
-//		bool thumb = false;
-		for (std::vector<cv::Vec4i>::iterator it = convexityDefects.begin(); it!=convexityDefects.end();){
-			double cos = UsePoints::getCos(hand_poly[(*it)[2]], hand_poly[(*it)[0]], hand_poly[(*it)[1]]);
-			if ( cos>std::cos(1.7) && (*it)[3]>rect.height * 40){
-				//if (hand_poly[(*it)[2]].y > centroid.y)//親指かどうかの判断
-				//	thumb = true;
-				temp.push_back(hand_poly[(*it)[0]]);
-				temp.push_back(hand_poly[(*it)[1]]);
-				it++;
-			}
-			else{
-				cv::circle(src_img, hand_poly[(*it)[2]], 5, cv::Scalar(0, 0, 255, 0), -1);
-				cv::circle(src_img, hand_poly[(*it)[1]], 5, cv::Scalar(0, 0, 255, 0), -1);
-				cv::circle(src_img, hand_poly[(*it)[0]], 5, cv::Scalar(0, 0, 255, 0), -1);
-
-				it = convexityDefects.erase(it);
-
-			}
-		}
-		if (temp.size() < 3){
-			return false;
-		}
-
-		std::vector<cv::Point> fingers;
-		for (int i = 0; i<temp.size()/2;i++){
-			int a = (i * 2 + 1) % temp.size();
-			int b = (i * 2 + 2) % temp.size();
-			double d = UsePoints::distance(temp[a], temp[b]);
-			if (d<maxDistance / 2){
-				fingers.push_back(cv::Point((temp[(i * 2 + 1) % temp.size()].x + temp[(i * 2 + 2) % temp.size()].x) / 2
-					, (temp[(i * 2 + 1) % temp.size()].y + temp[(i * 2 + 2) % temp.size()].y) / 2));
-			}
-			else{
-				fingers.push_back(temp[(i * 2 + 1) % temp.size()]);
-				fingers.push_back(temp[(i * 2 + 2) % temp.size()]);
-			}	
-		}
-
-		for (cv::Point p : fingers){
-			cv::Point point = cv::Point(p.x + centroid.x, p.y + centroid.y);
-	//		cv::circle(hand_img, point, 5, cv::Scalar(0, 0, 0, 0), -1);
-		}
-		std::cout << fingers.size() << std::endl;
-		log->setFingers(&fingers,centroid);
+	//指のlogを保存
+	log->setFingers(&fingers,centroid);
 		fingers = log->getFingers();
 		for (cv::Point p : fingers){
 			cv::Point point = cv::Point(p.x+centroid.x,p.y+centroid.y);
@@ -338,8 +334,10 @@ bool HandRecognition::getFingers(std::vector<cv::Point> contour){
 		}
 		std::cout << std::endl;
 		cv::imshow(WINDOW_NAME + '2', hand_img);
-		if (convexityDefects.size() > 2){
-			mouseMode = convexityDefects.size() == 3 ? isTouched : isMouse;
+
+
+		if (fingers.size() > 2){
+			mouseMode = log->existFingers[thumb] ? isTouched : isMouse;
 		}
 		else {
 			mouseMode = notMouse;
@@ -349,7 +347,7 @@ bool HandRecognition::getFingers(std::vector<cv::Point> contour){
 
 		return true;
 
-	}
+	
 }
 
 POINT HandRecognition::getCentroid(){
