@@ -26,12 +26,12 @@ void HandMouse::update(){
 	const POINT p = hand->getCentroid();
 
 	if( hand->getMouseMode() == notMouse||!hand->mousemouse)return;
-	if (p.x - privious_point.x > -20 && p.x - privious_point.x<20 && p.y - privious_point.y>-20 && p.y - privious_point.y < 20){
+	if (p.x - privious_point.x > -10 && p.x - privious_point.x<10 && p.y - privious_point.y>-10 && p.y - privious_point.y < 10){
 		setNextPoint(p);
 		moveMouse();
 	}
 	if (hand->getMouseMode() == isTouched){
-		touchedCount = touchedCount>2 ? 3 : touchedCount + 1;
+		touchedCount = touchedCount>4 ? 5 : touchedCount + 1;
 		if (touchedCount > 2&&!touched){
 			mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0);
 			touched = true;
@@ -51,8 +51,9 @@ void HandMouse::update(){
 void HandMouse::setNextPoint(POINT p){
 	//if (isMove){
 		GetCursorPos(&mouse_point);
-		mouse_point.x += p.x > privious_point.x ? std::pow((p.x - privious_point.x), 2) / 10 : -std::pow((p.x - privious_point.x), 2) / 10;
-		mouse_point.y += p.y > privious_point.y ? std::pow((p.y - privious_point.y), 2) / 10 : -std::pow((p.y - privious_point.y), 2) / 10;
+		mouse_point.x += p.x > privious_point.x ? (int)std::pow((p.x - privious_point.x), 3) / 10 : (int)std::pow((p.x - privious_point.x), 3) / 10;
+		mouse_point.y += p.y > privious_point.y ? (int)std::pow((p.y - privious_point.y), 3) / 10 : (int)std::pow((p.y - privious_point.y), 3) / 10;
+		std::cout << (int)std::pow((p.x - privious_point.x), 3) / 10 << "," << (int)std::pow((p.y - privious_point.y), 3) / 10 << std::endl;
 		//}
 }
 

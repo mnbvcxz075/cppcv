@@ -39,12 +39,8 @@ private:
 	cv::Mat hand_img;
 	byte *UVSkinTable;
 	std::vector<cv::Point> handContour;
-	boolean exist_contour;
 	std::vector<std::vector<cv::Point>> contours;
 	std::vector<std::vector<cv::Point>> may_be_hand_contours;
-	std::vector<int> hand_hull;
-	std::vector<cv::Point> hand_poly;
-	std::vector<cv::Vec4i> convexityDefects;
 	cv::Point maxDistPoint;
 	cv::Point* fingers;
 
@@ -62,7 +58,9 @@ private:
 	void recognizeHandGesture();
 	void soatRegion(std::vector<std::vector<cv::Point>>);
 	bool getFingers(std::vector<cv::Point>);
-	double getCos(cv::Vec4i);
+	std::vector<cv::Vec4i> convexityDefects;
+	std::vector<cv::Point> hand_poly;
+	std::vector<int> hand_hull;
 	std::vector<cv::Point> movePoints(std::vector<cv::Point>, int, int);
 	std::vector<cv::Point> turnPoints(std::vector<cv::Point>, double, cv::Point);
 	cv::Point getCentroid(std::vector<cv::Point>);

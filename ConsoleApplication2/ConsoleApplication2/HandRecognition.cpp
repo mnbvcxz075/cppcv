@@ -5,14 +5,13 @@ int HandRecognition::req_x, HandRecognition::req_y;
 
 HandRecognition::HandRecognition(){
 	req_x = req_y = -1;
-	upper[0] = 35;
-	lower[0] = 148;
+	upper[0] = 30;
+	lower[0] = 168;
 	upper[1] = 150;
-	lower[1] = 20;
-	upper[2] = 250;
-	lower[2] = 15;
+	lower[1] = 30;
+	upper[2] = 255;
+	lower[2] = 100;
 
-	exist_contour = false;
 	mouseMode = notMouse;
 
 	fingers = new cv::Point[NUM_OF_FINGER];
@@ -48,6 +47,8 @@ void HandRecognition::update(){
 		capture >> src_img;
 	else
 		src_img = img.clone();
+
+	cv::flip(src_img, src_img, 1);
 	handContour.clear();
 
 	for (int i = 0; i < button->low; i++){
@@ -71,7 +72,7 @@ void HandRecognition::update(){
 		}
 	}
 
-	cv::resize(src_img, src_img, cv::Size(), 0.5, 0.5);
+//	cv::resize(src_img, src_img, cv::Size(), 0.5, 0.5);
 
 ///////////////////////////////////////////////////////////
 
@@ -80,15 +81,14 @@ void HandRecognition::update(){
 	binarization();
 	findHand();
 ///////////////////////////////////////////////////////////
-
 	cv::imshow(WINDOW_NAME + '2', bin_img);
 	cv::imshow(WINDOW_NAME, src_img);
-	if(req_x!=-1){
-		byte* it = src_img.data;
-		it += req_y*src_img.step[0] + req_x*src_img.step[1];
-		std::cout << (int)(*(it + 2)) << "," << (int)(*(it + 1)) << "," << (int)(*it) << std::endl;
-		req_x = -1;
-	}
+	//if(req_x!=-1){
+	//	byte* it = src_img.data;
+	//	it += req_y*src_img.step[0] + req_x*src_img.step[1];
+	//	std::cout << (int)(*(it + 2)) << "," << (int)(*(it + 1)) << "," << (int)(*it) << std::endl;
+	//	req_x = -1;
+	//}
 //	cv::imshow(WINDOW_NAME + '2', hand_img);
 //	cv::circle(src_img, maxDistPoint, 5, cv::Scalar(0, 255, 0, 0), -1);
 
@@ -181,7 +181,6 @@ void HandRecognition::initUVSkinTable(){
 
 void HandRecognition::findHand(){
 	temp_img = bin_img.clone();
-	exist_contour = false;
 	hand_img = cv::Mat(bin_img.rows, bin_img.cols, CV_8U, cv::Scalar(0, 0, 0, 0));
 
 	cv::findContours(temp_img, contours, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_SIMPLE);
@@ -208,9 +207,13 @@ void HandRecognition::findHand(){
 
 bool HandRecognition::getFingers(std::vector<cv::Point> contour){
 	
-	
-	//—ÖŠs‚Ìæ“¾‚Æ—ÖŠs‰æ‘œ‚Ìì¬
+
 	cv::Rect rect = cv::boundingRect(contour);
+
+	if (rect.x == 1 || rect.y == 1 || rect.x + rect.width == src_img.cols-1 || rect.y + rect.height == src_img.rows-1)
+		return false;
+
+	//—ÖŠs‰æ‘œ‚Ìì¬
 	contour = movePoints(contour, rect.x, rect.y);
 	cv::Mat img = cv::Mat(rect.height,rect.width, CV_8U, cv::Scalar(0, 0, 0, 0));
 	std::vector<std::vector<cv::Point>> contours;
@@ -251,7 +254,6 @@ bool HandRecognition::getFingers(std::vector<cv::Point> contour){
 	cv::circle(hand_img, maxDistPoint, 5, cv::Scalar(255, 0, 0, 0), -1);
 	cv::circle(hand_img, centroid, 5, cv::Scalar(255, 0, 0, 0), -1);
 
-	hand_poly.clear();
 	for (int i = 0; i < 5; i++){
 		fingers[i] = cv::Point(0, 0);
 	}
@@ -268,7 +270,6 @@ bool HandRecognition::getFingers(std::vector<cv::Point> contour){
 		//“Ê•ï‚Ìæ“¾
 		cv::convexHull(hand_poly, hand_hull, true);
 
-
 		//“Ê•ï‚Ì•`‰æ
 		int hnum = hand_hull.size();
 		for (int i = 0; i < hnum; ++i)
@@ -280,7 +281,7 @@ bool HandRecognition::getFingers(std::vector<cv::Point> contour){
 		//w‚ÌŒó•â‚Å‚È‚¢‚à‚Ì‚ğíœ&ew‚ÌŠm”F
 //		bool thumb = false;
 		for (std::vector<cv::Vec4i>::iterator it = convexityDefects.begin(); it!=convexityDefects.end();){
-			if (getCos(*it)>std::cos(1.7) && (*it)[3]>rect.height*40){
+			if (UsePoints::getCos(hand_poly[(*it)[2]], hand_poly[(*it)[0]], hand_poly[(*it)[1]]) >std::cos(1.7) && (*it)[3]>rect.height * 40){
 				//if (hand_poly[(*it)[2]].y > centroid.y)//ew‚©‚Ç‚¤‚©‚Ì”»’f
 				//	thumb = true;
 				it++;
@@ -289,7 +290,6 @@ bool HandRecognition::getFingers(std::vector<cv::Point> contour){
 				it = convexityDefects.erase(it);
 			}
 		}
-
 		if (convexityDefects.size() > 2){
 			mouseMode = convexityDefects.size() == 3 ? isTouched : isMouse;
 		}
@@ -320,9 +320,6 @@ cv::Point HandRecognition::getCentroid(std::vector<cv::Point> contour){
 	return p;
 }
 
-double HandRecognition::getCos(cv::Vec4i vec){
-	return UsePoints::getCos(hand_poly[vec[2]], hand_poly[vec[0]], hand_poly[vec[1]]);
-}
 
 void HandRecognition::setMouseMode(int mode){
 	mouseMode = mode;
