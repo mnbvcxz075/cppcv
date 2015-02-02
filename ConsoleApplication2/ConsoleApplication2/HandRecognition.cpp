@@ -231,23 +231,23 @@ bool HandRecognition::getFingers(std::vector<cv::Point> contour){
 	cv::Point centroid = getCentroid(contour);
 	this->centroid = cv::Point(centroid.x+rect.x,centroid.y+rect.y);
 
-	//double cos = getCos(centroid, cv::Point(centroid.x, centroid.y + 10), maxDistPoint);
-	//double rad = maxDistPoint.x*(centroid.y + 10)>maxDistPoint.y*centroid.x ? acos(cos) : -acos(cos);
-	//contour = turnPoints(contour, rad, centroid);
-	//maxDistPoint = turnPoints(maxDistPoint, rad, centroid);
-	//cv::Rect rect2 = cv::boundingRect(contour);
-	//contour = movePoints(contour, rect2.x, rect2.y);
-	//maxDistPoint.x -= rect2.x;
-	//maxDistPoint.y -= rect2.y;
-	//centroid.x = -rect2.x;
-	//centroid.y = -rect2.y;
-	//img = cv::Mat(rect2.height, rect2.width, CV_8U);
+	double cos = UsePoints::getCos(centroid, cv::Point(centroid.x, centroid.y + 10), maxDistPoint);
+	double rad = maxDistPoint.x*(centroid.y + 10)>maxDistPoint.y*centroid.x ? acos(cos) : -acos(cos);
+	contour = turnPoints(contour, rad, centroid);
+	maxDistPoint = UsePoints::turnPoints(maxDistPoint, rad, centroid);
+	cv::Rect rect2 = cv::boundingRect(contour);
+	contour = movePoints(contour, rect2.x, rect2.y);
+	maxDistPoint.x -= rect2.x;
+	maxDistPoint.y -= rect2.y;
+	centroid.x = -rect2.x;
+	centroid.y = -rect2.y;
+	img = cv::Mat(rect2.height, rect2.width, CV_8U);
 
 	//âÒì]å„ÇÃâÊëúÇÃçÏê¨
-	//contours.clear();
-	//contours.push_back(contour);
-	//cv::rectangle(img, cv::Point(0, 0), cv::Point(rect2.width, rect2.height), cv::Scalar(0, 0, 0, 0), -1);
-	//cv::fillPoly(img, contours, cv::Scalar(255,0));
+	contours.clear();
+	contours.push_back(contour);
+	cv::rectangle(img, cv::Point(0, 0), cv::Point(rect2.width, rect2.height), cv::Scalar(0, 0, 0, 0), -1);
+	cv::fillPoly(img, contours, cv::Scalar(255,0));
 
 
 	hand_img = cv::Mat(img.rows, img.cols, CV_8U, cv::Scalar(0, 0, 0, 0));
