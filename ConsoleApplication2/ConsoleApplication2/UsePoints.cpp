@@ -15,10 +15,9 @@ cv::Point UsePoints::turnPoints(cv::Point point, double rad, cv::Point center){
 }
 
 double UsePoints::getCos(cv::Point a, cv::Point b, cv::Point c){
-	return
-		((b.x - a.x)*(c.x - a.x) + (b.y - a.y)*(c.y - a.y))
-		/ std::sqrt(((c.x - a.x)*(c.x - a.x) + (c.y - a.y)*(c.y - a.y))
-		*((b.x - a.x)*(b.x - a.x) + (b.y - a.y)*(b.y - a.y)));
+	double d = ((c.x - a.x)*(c.x - a.x) + (c.y - a.y)*(c.y - a.y));
+	double e = d*((b.x - a.x)*(b.x - a.x) + (b.y - a.y)*(b.y - a.y));
+	return ((b.x - a.x)*(c.x - a.x) + (b.y - a.y)*(c.y - a.y)) / std::sqrt(e);
 }
 
 double UsePoints::distance(cv::Point p1, cv::Point p2){
