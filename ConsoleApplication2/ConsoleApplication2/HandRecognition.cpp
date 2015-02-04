@@ -14,15 +14,16 @@ HandRecognition::HandRecognition(){
 
 	mouseMode = notMouse;
 	log = new HandLog();
-	
+
 	fingers = new cv::Point[NUM_OF_FINGER];
 
 	cv::namedWindow(WINDOW_NAME, 1);
 	cv::setMouseCallback(WINDOW_NAME, HandRecognition::callback);
 	cv::namedWindow(WINDOW_NAME + '2', 1);
+	cv::namedWindow(WINDOW_NAME + '3', 1);
 
-	UVSkinTable = (byte*)malloc(256 * 256 * 256/8);
-//	initUVSkinTable();
+	UVSkinTable = (byte*)malloc(256 * 256 * 256 / 8);
+	//	initUVSkinTable();
 	button = new ButtonWindow();
 
 }
@@ -45,7 +46,7 @@ HandRecognition::HandRecognition(cv::VideoCapture cap)
 	capture >> src_img;
 }
 HandRecognition::HandRecognition(cv::VideoCapture cap, TimeCounter* tc)
-:HandRecognition(cap)
+: HandRecognition(cap)
 {
 	this->tc = tc;
 }
@@ -72,27 +73,30 @@ void HandRecognition::update(){
 	findHand();
 	tc->stop("findHand");
 
-	cv::imshow(WINDOW_NAME, bin_img);
+	cv::imshow(WINDOW_NAME, src_img);
+	cv::imshow(WINDOW_NAME+'3', bin_img);
 
 }
 
 void HandRecognition::binarization(){
-
 	cv::cvtColor(src_img, temp_img, bin_type);
-	if (lower[0]<upper[0]){
+	if (lower[0] < upper[0]){
 		cv::inRange(temp_img, cv::Scalar(lower[0], lower[1], lower[2], 0), cv::Scalar(upper[0], upper[1], upper[2], 0), bin_img);
 	}
 	else{
+
+		tc->start("inRange");
 		cv::inRange(temp_img, cv::Scalar(0, lower[1], lower[2], 0), cv::Scalar(upper[0], upper[1], upper[2], 0), bin_img);
 		cv::inRange(temp_img, cv::Scalar(lower[0], lower[1], lower[2], 0), cv::Scalar(180, upper[1], upper[2], 0), hand_img);
-
+		tc->stop("inRange");
 		cv::add(bin_img, hand_img, bin_img);
-
 	}
 
+	tc->start("noize");
 	cv::erode(bin_img, bin_img, cv::Mat(), cv::Point(-1, -1), 2);
 	cv::dilate(bin_img, bin_img, cv::Mat(), cv::Point(-1, -1), 4);
 	cv::erode(bin_img, bin_img, cv::Mat(), cv::Point(-1, -1), 2);
+	tc->stop("noize");
 }
 void HandRecognition::binarization2(){
 
@@ -117,7 +121,7 @@ void HandRecognition::binarization2(){
 			bin_it++;
 		}
 		else{
-			src_it+=3;
+			src_it += 3;
 			bin_it++;
 
 		}
@@ -132,12 +136,12 @@ void HandRecognition::initUVSkinTable(){
 	byte* it = UVSkinTable;
 	int i = 0;
 	*it = 0;
-	for (int i = 0; i < 256 ; i++){
-		for (int j = 0; j < 256;j++){
-			for (int k = 0; k < 256 ;k++){
+	for (int i = 0; i < 256; i++){
+		for (int j = 0; j < 256; j++){
+			for (int k = 0; k < 256; k++){
 				double u = k*0.2468 - j*0.5318 + i*0.2850 - 7.3738;
 				double v = k*0.4665 - j*0.0478 - i*0.4178;
-				if (u>-14 && 10>u&&v>-1 && 33>v){
+				if (u>-14 && 10>u&&v>-1 && 33 > v){
 					//std::cout << i << ","<<j<<","<<k<<std::endl;
 					switch (k % 8){
 					case 0:*it += 0x00000001; break;
@@ -182,7 +186,7 @@ void HandRecognition::findHand(){
 			break;
 		}
 		else{
-			cv::rectangle(hand_img, cv::Point(0,0),cv::Point(hand_img.cols, hand_img.rows), cv::Scalar(0, 0, 0, 0), -1);
+			cv::rectangle(hand_img, cv::Point(0, 0), cv::Point(hand_img.cols, hand_img.rows), cv::Scalar(0, 0, 0, 0), -1);
 		}
 	}
 }
@@ -193,74 +197,77 @@ bool HandRecognition::getFingers(std::vector<cv::Point> contour){
 	if (rect.x == 1 || rect.y == 1 || rect.x + rect.width > src_img.cols - 1 || rect.y + rect.height > src_img.rows - 1)
 		return false;
 
+	cv::Moments moment = cv::moments(contour);
+	int  finger_width = std::sqrt(moment.m00)/6;
+
 	//近似ポリゴンの取得
 	cv::approxPolyDP(cv::Mat(contour), hand_poly, rect.height / 15, true);
 
 	if (hand_poly.size() < 4)
 		return false;
 
-		//近似ポリゴンの描画
-		for (int i = 0; i < hand_poly.size(); ++i)
-			cv::line(hand_img, hand_poly[i], hand_poly[i + 1 < hand_poly.size() ? i + 1 : 0], cv::Scalar(255, 0, 0), 2, CV_AA);
+	//近似ポリゴンの描画
+	for (int i = 0; i < hand_poly.size(); ++i)
+		cv::line(hand_img, hand_poly[i], hand_poly[i + 1 < hand_poly.size() ? i + 1 : 0], cv::Scalar(255, 0, 0), 2, CV_AA);
 
-		//凸包の取得
-		cv::convexHull(hand_poly, hand_hull, true);
+	//凸包の取得
+	cv::convexHull(hand_poly, hand_hull, true);
 
-		//凸包の描画
-		int hnum = hand_hull.size();
-		for (int i = 0; i < hnum; ++i)
-			cv::line(hand_img, hand_poly[hand_hull[i]], hand_poly[hand_hull[i + 1 < hnum ? i + 1 : 0]], cv::Scalar(255, 0, 0, 0), 2, CV_AA);
+	//凸包の描画
+	int hnum = hand_hull.size();
+	for (int i = 0; i < hnum; ++i)
+		cv::line(hand_img, hand_poly[hand_hull[i]], hand_poly[hand_hull[i + 1 < hnum ? i + 1 : 0]], cv::Scalar(255, 0, 0, 0), 2, CV_AA);
 
-		//凹状欠損の取得
-		cv::convexityDefects(hand_poly, hand_hull, convexityDefects);
-		if (convexityDefects.size() < 2)//
-			return false;
-	
-		std::vector<cv::Point> fingers;
-		std::vector<cv::Point> temp;
+	//凹状欠損の取得
+	cv::convexityDefects(hand_poly, hand_hull, convexityDefects);
+	if (convexityDefects.size() < 2)//
+		return false;
 
-		//指の候補でないものを削除&親指の確認
-		for (std::vector<cv::Vec4i>::iterator it = convexityDefects.begin(); it != convexityDefects.end();){
-			double cos = UsePoints::getCos(hand_poly[(*it)[2]], hand_poly[(*it)[0]], hand_poly[(*it)[1]]);
-			if (cos>std::cos(1.7) && (*it)[3]>rect.height * 40){
-				temp.push_back(hand_poly[(*it)[0]]);
-				temp.push_back(hand_poly[(*it)[1]]);
-				it++;
-			}
-			else{
-				it = convexityDefects.erase(it);
-			}
-		}	
+	std::vector<cv::Point> fingers;
+	std::vector<cv::Point> temp;
 
-	//同じ指のダブりを消す
-	for (int i = 0; i<temp.size() / 2; i++){
-			int a = (i * 2 + 1) % temp.size();
-			int b = (i * 2 + 2) % temp.size();
-			double d = UsePoints::distance(temp[a], temp[b]);
-			if (d<rect.width / 2){
-				fingers.push_back(cv::Point((temp[(i * 2 + 1) % temp.size()].x + temp[(i * 2 + 2) % temp.size()].x) / 2
-					, (temp[(i * 2 + 1) % temp.size()].y + temp[(i * 2 + 2) % temp.size()].y) / 2));
-			}
-			else{
-				fingers.push_back(temp[(i * 2 + 1) % temp.size()]);
-				fingers.push_back(temp[(i * 2 + 2) % temp.size()]);
-			}
+	//指の候補でないものを削除&親指の確認
+	for (std::vector<cv::Vec4i>::iterator it = convexityDefects.begin(); it != convexityDefects.end();){
+		double cos = UsePoints::getCos(hand_poly[(*it)[2]], hand_poly[(*it)[0]], hand_poly[(*it)[1]]);
+		if (cos>std::cos(1.7) && (*it)[3] > 18000){
+			temp.push_back(hand_poly[(*it)[0]]);
+			temp.push_back(hand_poly[(*it)[1]]);
+			it++;
 		}
-
-	if (temp.size() < 3){//指先候補が２本以下なら手でない
+		else{
+			it = convexityDefects.erase(it);
+		}
+	}
+	//同じ指のダブりを消す
+	for (int i = 0; i < temp.size() / 2; i++){
+		int a = (i * 2 + 1) % temp.size();
+		int b = (i * 2 + 2) % temp.size();
+		double d = UsePoints::distance(temp[a], temp[b]);
+		if (d < finger_width){
+			fingers.push_back(cv::Point((temp[(i * 2 + 1) % temp.size()].x + temp[(i * 2 + 2) % temp.size()].x) / 2
+				, (temp[(i * 2 + 1) % temp.size()].y + temp[(i * 2 + 2) % temp.size()].y) / 2));
+		}
+		else{
+			fingers.push_back(temp[(i * 2 + 1) % temp.size()]);
+			fingers.push_back(temp[(i * 2 + 2) % temp.size()]);
+		}
+	}
+	std::cout << fingers.size() << std::endl;
+	if (fingers.size() < 1){//指先候補が２本以下なら手でない
 		return false;
 	}
 
-	//if (temp.size() >5){//5本以上でも……ねえ？
-	//	return false;
-	//}
+	if (fingers.size() >5){//6本以上でも……ねえ？
+		return false;
+	}
 
 
 
 
 	//輪郭画像の作成
 	contour = UsePoints::movePoints(contour, rect.x, rect.y);
-	cv::Mat img = cv::Mat(rect.height,rect.width, CV_8U, cv::Scalar(0, 0, 0, 0));
+	fingers = UsePoints::movePoints(fingers, rect.x, rect.y);
+	cv::Mat img = cv::Mat(rect.height, rect.width, CV_8U, cv::Scalar(0, 0, 0, 0));
 	std::vector<std::vector<cv::Point>> contours;
 	contours.push_back(contour);
 	cv::fillPoly(img, contours, cv::Scalar(255, 0, 0));
@@ -284,8 +291,8 @@ bool HandRecognition::getFingers(std::vector<cv::Point> contour){
 	tc->stop("Moment");
 
 	//重心と距離変換を用いて輪郭等を回転
-	double cos = UsePoints::getCos(centroid, cv::Point(centroid.x, centroid.y + 10), maxDistPoint);
-	double rad = maxDistPoint.x*(centroid.y + 10)>maxDistPoint.y*centroid.x ? acos(cos) : -acos(cos);
+	double cos = UsePoints::getCos(centroid, cv::Point(centroid.x, centroid.y + 100), maxDistPoint);
+	double rad = maxDistPoint.x*(centroid.y + 100) > maxDistPoint.y*centroid.x ? acos(cos) : -acos(cos);
 	contour = UsePoints::turnPoints(contour, rad, centroid);
 	fingers = UsePoints::turnPoints(fingers, rad, centroid);
 	maxDistPoint = UsePoints::turnPoint(maxDistPoint, rad, centroid);
@@ -296,49 +303,56 @@ bool HandRecognition::getFingers(std::vector<cv::Point> contour){
 	fingers = UsePoints::movePoints(fingers, rect2.x, rect2.y);
 	maxDistPoint.x -= rect2.x;
 	maxDistPoint.y -= rect2.y;
-	centroid.x = -rect2.x;
-	centroid.y = -rect2.y;
+	centroid.x -= rect2.x;
+	centroid.y -= rect2.y;
 
 	//回転後の画像の作成
-	img = cv::Mat(rect2.height, rect2.width, CV_8U,cv::Scalar(0,0,0));
+	img = cv::Mat(rect2.height, rect2.width, CV_8U, cv::Scalar(0, 0, 0));
 	contours.clear();
 	contours.push_back(contour);
-	cv::fillPoly(img, contours, cv::Scalar(255,0));
-
-
-	cv::imshow(WINDOW_NAME + '2', img);
+	cv::fillPoly(img, contours, cv::Scalar(255, 0));
 
 
 	hand_img = cv::Mat(img.rows, img.cols, CV_8U, cv::Scalar(0, 0, 0, 0));
-	cv::circle(hand_img, maxDistPoint, 5, cv::Scalar(255, 0, 0, 0), -1);
-	cv::circle(hand_img, centroid, 5, cv::Scalar(255, 0, 0, 0), -1);
+	cv::circle(img, maxDistPoint, 5, cv::Scalar(100, 0, 0, 0), -1);
+	cv::circle(img, centroid, 5, cv::Scalar(200, 0, 0, 0), -1);
+	cv::circle(bin_img, this->maxDistPoint, 5, cv::Scalar(100, 0, 0, 0), -1);
+	cv::circle(bin_img, this->centroid, 5, cv::Scalar(200, 0, 0, 0), -1);
+
+
+	for (cv::Point p : fingers){
+		cv::Point point = cv::Point(p.x, p.y);
+		cv::circle(img, point, 5, cv::Scalar(200, 0, 0, 0), -1);
+	}
 
 	//指のlogを保存
-	log->setFingers(fingers,centroid);
-		fingers = log->getFingers();
-		for (cv::Point p : fingers){
-			cv::Point point = cv::Point(p.x+centroid.x,p.y+centroid.y);
-			cv::circle(hand_img, point, 5, cv::Scalar(255, 0, 0, 0), -1);
-		}
+	log->setFingers(fingers, centroid);
+	fingers = log->getFingers();
+	for (cv::Point p : fingers){
+		cv::Point point = cv::Point(p.x + centroid.x, p.y + centroid.y);
+		cv::circle(img, point, 5, cv::Scalar(100, 0, 0, 0), -1);
+	}
+	cv::putText(img, std::to_string(centroid.x) + "," + std::to_string(centroid.y), cv::Point(0, 30), cv::FONT_HERSHEY_PLAIN, 1, cv::Scalar(120, 0, 0, 0), 3);
 
-		for (int i = 0; i<5; i++){
-			std::cout<<log->existFingers[i];
-		}
-		std::cout << std::endl;
-
-
-		if (fingers.size() > 2){
-			mouseMode = log->existFingers[thumb] ? isTouched : isMouse;
-		}
-		else {
-			mouseMode = notMouse;
-			return false;
-		}
+	cv::imshow(WINDOW_NAME + '2', img);
+	for (int i = 0; i<5; i++){
+		std::cout << log->existFingers[i];
+	}
+	std::cout << std::endl;
 
 
-		return true;
+	if (fingers.size() > 2){
+		mouseMode = log->existFingers[thumb] ? isTouched : isMouse;
+	}
+	else {
+		mouseMode = notMouse;
+		return false;
+	}
 
-	
+
+	return true;
+
+
 }
 
 POINT HandRecognition::getCentroid(){
@@ -350,7 +364,7 @@ POINT HandRecognition::getCentroid(){
 }
 
 cv::Point HandRecognition::getCentroid(std::vector<cv::Point> contour){
-	cv::Point p ;
+	cv::Point p;
 	cv::Moments moments = cv::moments(contour);
 	p.x = moments.m10 / moments.m00;
 	p.y = moments.m01 / moments.m00;
@@ -368,29 +382,27 @@ int HandRecognition::getMouseMode(){
 void HandRecognition::soatRegion(std::vector<std::vector<cv::Point>> contour){
 	double area = 0;
 	may_be_hand_contours.clear();
-	double sizes[] = {0,0,0};
-	for (std::vector<cv::Point> con:contour){
+	double sizes[] = { 0, 0, 0 };
+	for (std::vector<cv::Point> con : contour){
 		area = cv::contourArea(con);
 		if (area > 640 * 480 / 100){
-			//std::cout << area << " ";
-				std::vector<std::vector<cv::Point>>::iterator it = may_be_hand_contours.begin();
-				for (int i = 0; i < 3;i++){
-					if (sizes[i]<area){
-						for (int j = 2; j > i; j--){
-							sizes[j] = sizes[j - 1];
-						}
-						sizes[i] = area;
-						may_be_hand_contours.insert(it, con);
-						if (may_be_hand_contours.size() > 3)
-							may_be_hand_contours.pop_back();
-						break;
+			std::vector<std::vector<cv::Point>>::iterator it = may_be_hand_contours.begin();
+			for (int i = 0; i < 3; i++){
+				if (sizes[i]<area){
+					for (int j = 2; j > i; j--){
+						sizes[j] = sizes[j - 1];
 					}
-					it++;
+					sizes[i] = area;
+					may_be_hand_contours.insert(it, con);
+					if (may_be_hand_contours.size() > 3)
+						may_be_hand_contours.pop_back();
+					break;
 				}
-//			}
+				it++;
+			}
+			//			}
 		}
 	}
-	//std::cout << std::endl;
 }
 
 void HandRecognition::kmeanFiltering(cv::Mat src_img, cv::Mat dimg){
@@ -426,7 +438,7 @@ void HandRecognition::meanShiftFiltering(cv::Mat src_img, cv::Mat dimg){
 }
 
 void HandRecognition::callback(int event, int x, int y, int flags, void* param){
-	if (event==CV_EVENT_LBUTTONDOWN){
+	if (event == CV_EVENT_LBUTTONDOWN){
 		req_x = x;
 		req_y = y;
 		mousemouse = mousemouse ? false : true;
@@ -444,7 +456,6 @@ void HandRecognition::updateButtons(){
 						button->changeNum(j, ++lower[j / 2]);
 				}
 				else if (i == 2){
-
 					if (j % 2 == 0)
 						button->changeNum(j, --upper[j / 2]);
 					else

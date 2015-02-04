@@ -23,7 +23,9 @@ int main(int argc, char** argv)
 	tc->add("findHand");
 	tc->add("Moment");
 	tc->add("Dist");
-	HandRecognition hand(img,tc);
+	tc->add("inRange");
+	tc->add("noize");
+	HandRecognition hand(cap,tc);
 
 	hand.update();
 //	HandMouse mouse(&hand);
@@ -32,13 +34,15 @@ int main(int argc, char** argv)
 		hand.update();
 //		mouse.update();
 	// VideoCapture デストラクタにより，カメラは自動的に終了処理されます
-	//	Sleep(10000);
+		Sleep(100);
 	}
 
 	std::cout << "binarization " << tc->get("binarization", true) << std::endl;
 	std::cout << "findHand " << tc->get("findHand", true) << std::endl;
 	std::cout << "Dist " << tc->get("Dist", true) << std::endl;
 	std::cout << "Moment " << tc->get("Moment", true) << std::endl;
+	std::cout << "inRange " << tc->get("inRange", true) << std::endl;
+	std::cout << "noize " << tc->get("noize", true) << std::endl;
 	Sleep(10000);
 	free(tc);
 	return 0;
