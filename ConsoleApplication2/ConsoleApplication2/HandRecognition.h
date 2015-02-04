@@ -14,6 +14,7 @@ private:
 
 public:
 	static bool mousemouse;
+	static bool getScreen;
 	HandRecognition();
 	HandRecognition(const HandRecognition&);
 	HandRecognition(cv::Mat);
@@ -57,6 +58,7 @@ private:
 	int mouseMode;
 
 	void static callback(int, int, int, int, void*);
+	void static callback2(int, int, int, int, void*);
 	void binarization();
 	void binarization2();
 	void initUVSkinTable();
@@ -73,6 +75,7 @@ private:
 
 	void kmeanFiltering(cv::Mat, cv::Mat);
 	void meanShiftFiltering(cv::Mat, cv::Mat);
+	bool getScreenImage(cv::Mat);
 
 	static int req_x, req_y;
 public:

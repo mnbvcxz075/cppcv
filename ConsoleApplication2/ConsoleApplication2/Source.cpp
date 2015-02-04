@@ -29,12 +29,11 @@ int main(int argc, char** argv)
 
 	hand.update();
 //	HandMouse mouse(&hand);
-
+	int timer = timeGetTime();
 	while (cvWaitKey(1) == -1){
 		hand.update();
 //		mouse.update();
 	// VideoCapture デストラクタにより，カメラは自動的に終了処理されます
-		Sleep(100);
 	}
 
 	std::cout << "binarization " << tc->get("binarization", true) << std::endl;
