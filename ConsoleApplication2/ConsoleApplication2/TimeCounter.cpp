@@ -26,6 +26,7 @@ bool TimeCounter::start(std::string str){
 		return false;
 	}
 
+	times[str].times++;
 	times[str].start = timeGetTime();
 	return true;
 }
@@ -45,10 +46,14 @@ double TimeCounter::stop(std::string str){
 	return thisTime;
 }
 
-double TimeCounter::get(std::string str){
+double TimeCounter::get(std::string str,bool mean){
 	if (times.find(str) == times.end()){
 		std::cout << str << " isn't defined" << std::endl;
 		return -1;
 	}
-	return times[str].time;
+	if (mean)
+		return times[str].time / times[str].times;
+	else
+		return times[str].time;
 }
+

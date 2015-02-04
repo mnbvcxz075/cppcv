@@ -4,6 +4,7 @@
 #include"ButtonWindow.h"
 #include"UsePoints.h"
 #include"HandLog.h"
+#include"TimeCounter.h"
 
 
 class HandRecognition{
@@ -16,7 +17,9 @@ public:
 	HandRecognition();
 	HandRecognition(const HandRecognition&);
 	HandRecognition(cv::Mat);
+	HandRecognition(cv::Mat,TimeCounter*);
 	HandRecognition(cv::VideoCapture);
+	HandRecognition(cv::VideoCapture, TimeCounter*);
 	~HandRecognition();
 
 
@@ -32,6 +35,7 @@ private:
 
 	cv::Point centroid;
 	double handRad;
+	TimeCounter *tc;
 
 	cv::Mat img;
 	cv::Mat src_img;
@@ -60,11 +64,10 @@ private:
 	void recognizeHandGesture();
 	void soatRegion(std::vector<std::vector<cv::Point>>);
 	bool getFingers(std::vector<cv::Point>);
+	void updateButtons();
 	std::vector<cv::Vec4i> convexityDefects;
 	std::vector<cv::Point> hand_poly;
 	std::vector<int> hand_hull;
-	std::vector<cv::Point> movePoints(std::vector<cv::Point>, int, int);
-	std::vector<cv::Point> turnPoints(std::vector<cv::Point>, double, cv::Point);
 	cv::Point getCentroid(std::vector<cv::Point>);
 
 
