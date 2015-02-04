@@ -26,7 +26,7 @@ void HandMouse::update(){
 	const POINT p = hand->getCentroid();
 
 	if( hand->getMouseMode() == notMouse||!hand->mousemouse)return;
-	if (p.x - privious_point.x > -10 && p.x - privious_point.x<10 && p.y - privious_point.y>-10 && p.y - privious_point.y < 10){
+	if (p.x - privious_point.x > -15 && p.x - privious_point.x<15 && p.y - privious_point.y>-15 && p.y - privious_point.y < 15){
 		setNextPoint(p);
 		moveMouse();
 	}

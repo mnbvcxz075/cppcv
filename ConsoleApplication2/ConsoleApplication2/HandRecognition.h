@@ -59,8 +59,8 @@ private:
 
 	void static callback(int, int, int, int, void*);
 	void static callback2(int, int, int, int, void*);
-	void binarization();
-	void binarization2();
+	void binarize();
+	void binarize2();
 	void initUVSkinTable();
 	void findHand();
 	void recognizeHandGesture();

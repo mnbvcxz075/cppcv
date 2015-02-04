@@ -23,8 +23,6 @@ HandRecognition::HandRecognition(){
 	cv::setMouseCallback(WINDOW_NAME+'3', HandRecognition::callback2);
 	cv::namedWindow(WINDOW_NAME + '2', 1);
 
-	UVSkinTable = (byte*)malloc(256 * 256 * 256 / 8);
-	//	initUVSkinTable();
 	button = new ButtonWindow();
 
 }
@@ -52,7 +50,6 @@ HandRecognition::HandRecognition(cv::VideoCapture cap, TimeCounter* tc)
 	this->tc = tc;
 }
 HandRecognition::~HandRecognition(){
-	free(UVSkinTable);
 }
 
 void HandRecognition::update(){
@@ -67,9 +64,9 @@ void HandRecognition::update(){
 
 	updateButtons();
 
-	tc->start("binarization");
-	binarization();
-	tc->stop("binarization");
+	tc->start("binarize");
+	binarize();
+	tc->stop("binarize");
 	tc->start("findHand");
 	findHand();
 	tc->stop("findHand");
@@ -79,13 +76,12 @@ void HandRecognition::update(){
 
 }
 
-void HandRecognition::binarization(){
+void HandRecognition::binarize(){
 	cv::cvtColor(src_img, temp_img, bin_type);
 	if (lower[0] < upper[0]){
 		cv::inRange(temp_img, cv::Scalar(lower[0], lower[1], lower[2], 0), cv::Scalar(upper[0], upper[1], upper[2], 0), bin_img);
 	}
 	else{
-
 		tc->start("inRange");
 		cv::inRange(temp_img, cv::Scalar(0, lower[1], lower[2], 0), cv::Scalar(upper[0], upper[1], upper[2], 0), bin_img);
 		cv::inRange(temp_img, cv::Scalar(lower[0], lower[1], lower[2], 0), cv::Scalar(180, upper[1], upper[2], 0), hand_img);
@@ -98,72 +94,6 @@ void HandRecognition::binarization(){
 	cv::dilate(bin_img, bin_img, cv::Mat(), cv::Point(-1, -1), 4);
 	cv::erode(bin_img, bin_img, cv::Mat(), cv::Point(-1, -1), 2);
 	tc->stop("noize");
-}
-void HandRecognition::binarization2(){
-
-	bin_img = cv::Mat(src_img.rows, src_img.cols, CV_8U);
-	byte* src_it = src_img.data;
-	byte* src_end = src_img.data + src_img.rows * src_img.cols * 3;
-	byte* bin_it = bin_img.data;
-	byte* table_it = UVSkinTable;
-
-	while (src_it != src_end){
-		if (1){
-			table_it = UVSkinTable;
-			table_it += *src_it * 256 * 256 / 8;
-			src_it++;
-			table_it += *src_it * 256 / 8;
-			src_it++;
-			table_it += *src_it / 8;
-			src_it++;
-			int a = *table_it;
-			int b = std::pow(2, *src_it % 8);
-			*bin_it = *table_it&(byte)std::pow(2, *src_it % 8) != 0 ? 255 : 0;
-			bin_it++;
-		}
-		else{
-			src_it += 3;
-			bin_it++;
-
-		}
-	}
-
-	cv::erode(bin_img, bin_img, cv::Mat(), cv::Point(-1, -1), 2);
-	cv::dilate(bin_img, bin_img, cv::Mat(), cv::Point(-1, -1), 4);
-	cv::erode(bin_img, bin_img, cv::Mat(), cv::Point(-1, -1), 2);
-}
-
-void HandRecognition::initUVSkinTable(){
-	byte* it = UVSkinTable;
-	int i = 0;
-	*it = 0;
-	for (int i = 0; i < 256; i++){
-		for (int j = 0; j < 256; j++){
-			for (int k = 0; k < 256; k++){
-				double u = k*0.2468 - j*0.5318 + i*0.2850 - 7.3738;
-				double v = k*0.4665 - j*0.0478 - i*0.4178;
-				if (u>-14 && 10>u&&v>-1 && 33 > v){
-					//std::cout << i << ","<<j<<","<<k<<std::endl;
-					switch (k % 8){
-					case 0:*it += 0x00000001; break;
-					case 1:*it += 0x00000010; break;
-					case 2:*it += 0x00000100; break;
-					case 3:*it += 0x00001000; break;
-					case 4:*it += 0x00010000; break;
-					case 5:*it += 0x00100000; break;
-					case 6:*it += 0x01000000; break;
-					case 7:*it += 0x10000000; break;
-					}
-				}
-				if (k % 8 == 7){
-					it++;
-					*it = 0;
-				}
-			}
-		}
-	}
-
-
 }
 
 void HandRecognition::findHand(){
@@ -220,6 +150,9 @@ bool HandRecognition::getFingers(std::vector<cv::Point> contour){
 	if (convexityDefects.size() < 2)//
 		return false;
 
+	cv::Moments moment = cv::moments(contour);
+	int  finger_width = std::sqrt(moment.m00) / 4;
+
 	std::vector<cv::Point> fingers;
 	std::vector<cv::Point> temp;
 
@@ -227,7 +160,7 @@ bool HandRecognition::getFingers(std::vector<cv::Point> contour){
 	for (std::vector<cv::Vec4i>::iterator it = convexityDefects.begin(); it != convexityDefects.end();){
 		double cos = UsePoints::getCos(hand_poly[(*it)[2]], hand_poly[(*it)[0]], hand_poly[(*it)[1]]);
 		std::cout << (*it)[3] / 256 << std::endl;
-		if (cos>std::cos(1.7) && (*it)[3] > 18000){
+		if (cos>std::cos(1.7) && (*it)[3] / 256 > finger_width){
 			temp.push_back(hand_poly[(*it)[0]]);
 			temp.push_back(hand_poly[(*it)[1]]);
 			it++;
@@ -236,8 +169,6 @@ bool HandRecognition::getFingers(std::vector<cv::Point> contour){
 			it = convexityDefects.erase(it);
 		}
 	}
-	cv::Moments moment = cv::moments(contour);
-	int  finger_width = std::sqrt(moment.m00) / 3;
 
 	//同じ指のダブりを消す
 	for (int i = 0; i < temp.size() / 2; i++){
@@ -323,7 +254,7 @@ bool HandRecognition::getFingers(std::vector<cv::Point> contour){
 
 	for (cv::Point p : fingers){
 		cv::Point point = cv::Point(p.x, p.y);
-		//cv::circle(img, point, 5, cv::Scalar(200, 0, 0, 0), -1);
+		cv::circle(img, point, 5, cv::Scalar(200, 0, 0, 0), -1);
 	}
 
 	//指のlogを保存
@@ -331,17 +262,17 @@ bool HandRecognition::getFingers(std::vector<cv::Point> contour){
 	fingers = log->getFingers();
 	for (cv::Point p : fingers){
 		cv::Point point = cv::Point(p.x + centroid.x, p.y + centroid.y);
-		//cv::circle(img, point, 5, cv::Scalar(100, 0, 0, 0), -1);
+		cv::circle(img, point, 5, cv::Scalar(100, 0, 0, 0), -1);
 	}
 	cv::putText(bin_img, std::to_string(finger_width) + "," + std::to_string(maxDistance), cv::Point(0, 30), cv::FONT_HERSHEY_PLAIN, 1, cv::Scalar(120, 0, 0, 0), 3);
 	if (getScreen){
 		getScreenImage(bin_img);
 	}
 	cv::imshow(WINDOW_NAME + '2', img);
-	//for (int i = 0; i<5; i++){
-	//	std::cout << log->existFingers[i];
-	//}
-	//std::cout << std::endl;
+	for (int i = 0; i<5; i++){
+		std::cout << log->existFingers[i];
+	}
+	std::cout << std::endl;
 
 
 	if (fingers.size() > 2){
@@ -362,10 +293,8 @@ POINT HandRecognition::getCentroid(){
 	POINT p = POINT();
 	p.x = centroid.x;
 	p.y = centroid.y;
-
 	return p;
 }
-
 cv::Point HandRecognition::getCentroid(std::vector<cv::Point> contour){
 	cv::Point p;
 	cv::Moments moments = cv::moments(contour);
@@ -408,35 +337,6 @@ void HandRecognition::soatRegion(std::vector<std::vector<cv::Point>> contour){
 	}
 }
 
-void HandRecognition::kmeanFiltering(cv::Mat src_img, cv::Mat dimg){
-	cv::Mat_<int> labels(img.size(), CV_32SC1);
-	cv::Mat img;
-	img = src_img.reshape(1, src_img.rows*src_img.cols);
-	img.convertTo(img, CV_32F);
-	cv::Mat centers;
-	cv::kmeans(img, 5, labels, cv::TermCriteria(CV_TERMCRIT_EPS | CV_TERMCRIT_ITER, 10, 1), 5, cv::KMEANS_RANDOM_CENTERS, centers);
-
-	cv::Mat dst_img(src_img.size(), src_img.type());
-	cv::MatIterator_<cv::Vec3b> itd = dst_img.begin<cv::Vec3b>(),
-		itd_end = dst_img.end<cv::Vec3b>();
-	for (int i = 0; itd != itd_end; ++itd, ++i) {
-		cv::Vec3f &color = centers.at<cv::Vec3f>(labels(i), 0);
-		(*itd)[0] = cv::saturate_cast<uchar>(color[0]);
-		(*itd)[1] = cv::saturate_cast<uchar>(color[1]);
-		(*itd)[2] = cv::saturate_cast<uchar>(color[2]);
-	}
-}
-
-void HandRecognition::meanShiftFiltering(cv::Mat src_img, cv::Mat dimg){
-	//cv::cvtColor(src_img, gray_img, CV_BGR2GRAY);
-	//cv::Canny(gray_img, canny_img, 10, 200);
-	//cv::TermCriteria tc;
-	//tc.epsilon = 0.1;
-	//tc.maxCount = 30;
-	//cv::pyrMeanShiftFiltering(src_img,src_img,8,64,0,tc);
-	//std::cout << "nn" << std::endl;
-
-}
 
 void HandRecognition::callback(int event, int x, int y, int flags, void* param){
 	if (event == CV_EVENT_LBUTTONDOWN){
@@ -486,3 +386,97 @@ bool HandRecognition::getScreenImage(cv::Mat img){
 }
 bool HandRecognition::mousemouse = false;
 bool HandRecognition::getScreen = false;
+
+//void HandRecognition::binarize2(){
+//
+//	bin_img = cv::Mat(src_img.rows, src_img.cols, CV_8U);
+//	byte* src_it = src_img.data;
+//	byte* src_end = src_img.data + src_img.rows * src_img.cols * 3;
+//	byte* bin_it = bin_img.data;
+//	byte* table_it = UVSkinTable;
+//
+//	while (src_it != src_end){
+//		if (1){
+//			table_it = UVSkinTable;
+//			table_it += *src_it * 256 * 256 / 8;
+//			src_it++;
+//			table_it += *src_it * 256 / 8;
+//			src_it++;
+//			table_it += *src_it / 8;
+//			src_it++;
+//			int a = *table_it;
+//			int b = std::pow(2, *src_it % 8);
+//			*bin_it = *table_it&(byte)std::pow(2, *src_it % 8) != 0 ? 255 : 0;
+//			bin_it++;
+//		}
+//		else{
+//			src_it += 3;
+//			bin_it++;
+//
+//		}
+//	}
+//
+//	cv::erode(bin_img, bin_img, cv::Mat(), cv::Point(-1, -1), 2);
+//	cv::dilate(bin_img, bin_img, cv::Mat(), cv::Point(-1, -1), 4);
+//	cv::erode(bin_img, bin_img, cv::Mat(), cv::Point(-1, -1), 2);
+//}
+//
+//void HandRecognition::initUVSkinTable(){
+//	byte* it = UVSkinTable;
+//	int i = 0;
+//	*it = 0;
+//	for (int i = 0; i < 256; i++){
+//		for (int j = 0; j < 256; j++){
+//			for (int k = 0; k < 256; k++){
+//				double u = k*0.2468 - j*0.5318 + i*0.2850 - 7.3738;
+//				double v = k*0.4665 - j*0.0478 - i*0.4178;
+//				if (u>-14 && 10>u&&v>-1 && 33 > v){
+//					//std::cout << i << ","<<j<<","<<k<<std::endl;
+//					switch (k % 8){
+//					case 0:*it += 0x00000001; break;
+//					case 1:*it += 0x00000010; break;
+//					case 2:*it += 0x00000100; break;
+//					case 3:*it += 0x00001000; break;
+//					case 4:*it += 0x00010000; break;
+//					case 5:*it += 0x00100000; break;
+//					case 6:*it += 0x01000000; break;
+//					case 7:*it += 0x10000000; break;
+//					}
+//				}
+//				if (k % 8 == 7){
+//					it++;
+//					*it = 0;
+//				}
+//			}
+//		}
+//	}
+//
+//
+//}
+//void HandRecognition::meanShiftFiltering(cv::Mat src_img, cv::Mat dimg){
+//	cv::cvtColor(src_img, gray_img, CV_BGR2GRAY);
+//	cv::Canny(gray_img, canny_img, 10, 200);
+//	cv::TermCriteria tc;
+//	tc.epsilon = 0.1;
+//	tc.maxCount = 30;
+//	cv::pyrMeanShiftFiltering(src_img,src_img,8,64,0,tc);
+//	std::cout << "nn" << std::endl;
+//}
+//void HandRecognition::kmeanFiltering(cv::Mat src_img, cv::Mat dimg){
+//	cv::Mat_<int> labels(img.size(), CV_32SC1);
+//	cv::Mat img;
+//	img = src_img.reshape(1, src_img.rows*src_img.cols);
+//	img.convertTo(img, CV_32F);
+//	cv::Mat centers;
+//	cv::kmeans(img, 5, labels, cv::TermCriteria(CV_TERMCRIT_EPS | CV_TERMCRIT_ITER, 10, 1), 5, cv::KMEANS_RANDOM_CENTERS, centers);
+//
+//	cv::Mat dst_img(src_img.size(), src_img.type());
+//	cv::MatIterator_<cv::Vec3b> itd = dst_img.begin<cv::Vec3b>(),
+//		itd_end = dst_img.end<cv::Vec3b>();
+//	for (int i = 0; itd != itd_end; ++itd, ++i) {
+//		cv::Vec3f &color = centers.at<cv::Vec3f>(labels(i), 0);
+//		(*itd)[0] = cv::saturate_cast<uchar>(color[0]);
+//		(*itd)[1] = cv::saturate_cast<uchar>(color[1]);
+//		(*itd)[2] = cv::saturate_cast<uchar>(color[2]);
+//	}
+//}

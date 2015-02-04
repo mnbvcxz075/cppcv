@@ -33,6 +33,7 @@ int main(int argc, char** argv)
 	while (cvWaitKey(1) == -1){
 		hand.update();
 //		mouse.update();
+	//	Sleep(1000);
 	// VideoCapture デストラクタにより，カメラは自動的に終了処理されます
 	}
 
