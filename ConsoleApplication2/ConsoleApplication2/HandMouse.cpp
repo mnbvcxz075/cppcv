@@ -20,6 +20,8 @@ HandMouse::~HandMouse(){
 
 }
 
+
+
 void HandMouse::update(){
 	const POINT p = hand->getCentroid();
 
@@ -55,9 +57,10 @@ void HandMouse::setNextPoint(POINT p){
 		//}
 }
 
-const void HandMouse::moveMouse(){
-	//if (isMove){
-		SetCursorPos(mouse_point.x, mouse_point.y);
-	//}
+const void HandMouse::moveMouse(int x,int y){
+	int dist = x < y ? x : y;
+	for (int i = 0; i < dist; i++){
+		SetCursorPos(mouse_point.x+x*i/dist, mouse_point.y+y*i/dist);
+	}
 }
 

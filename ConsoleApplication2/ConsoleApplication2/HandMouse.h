@@ -22,7 +22,7 @@ private:
 	HandRecognition* hand;
 
 public:
-	const void moveMouse();
+	const void moveMouse(int,int);
 	void setNextPoint(POINT);
 	void update();
 
