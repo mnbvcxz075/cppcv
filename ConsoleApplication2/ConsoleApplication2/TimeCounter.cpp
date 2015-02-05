@@ -18,8 +18,7 @@ bool TimeCounter::add(std::string str){
 
 bool TimeCounter::start(std::string str){
 	if (times.find(str) == times.end()){
-		std::cout << str << " isn't defined" << std::endl;
-		return false;
+		add(str);
 	}
 	if (times[str].start != 0){
 		std::cout << str << " is already started" << std::endl;

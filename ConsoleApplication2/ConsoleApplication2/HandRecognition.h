@@ -63,8 +63,9 @@ private:
 	void binarize2();
 	void initUVSkinTable();
 	void findHand();
+	bool trackHand();
 	void recognizeHandGesture();
-	void soatRegion(std::vector<std::vector<cv::Point>>);
+	void sortRegion(std::vector<std::vector<cv::Point>>);
 	bool getFingers(std::vector<cv::Point>);
 	void updateButtons();
 	std::vector<cv::Vec4i> convexityDefects;

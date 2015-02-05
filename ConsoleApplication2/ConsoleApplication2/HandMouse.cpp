@@ -20,8 +20,6 @@ HandMouse::~HandMouse(){
 
 }
 
-
-
 void HandMouse::update(){
 	const POINT p = hand->getCentroid();
 

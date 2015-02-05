@@ -19,12 +19,6 @@ int main(int argc, char** argv)
 	}
 
 	TimeCounter* tc = new TimeCounter();
-	tc->add("binarization");
-	tc->add("findHand");
-	tc->add("Moment");
-	tc->add("Dist");
-	tc->add("inRange");
-	tc->add("noize");
 	HandRecognition hand(cap,tc);
 
 	hand.update();
@@ -37,7 +31,7 @@ int main(int argc, char** argv)
 	// VideoCapture デストラクタにより，カメラは自動的に終了処理されます
 	}
 
-	std::cout << "binarization " << tc->get("binarization", true) << std::endl;
+	std::cout << "binarize " << tc->get("binarize", true) << std::endl;
 	std::cout << "findHand " << tc->get("findHand", true) << std::endl;
 	std::cout << "Dist " << tc->get("Dist", true) << std::endl;
 	std::cout << "Moment " << tc->get("Moment", true) << std::endl;

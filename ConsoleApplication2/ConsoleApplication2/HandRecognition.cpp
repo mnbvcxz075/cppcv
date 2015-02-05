@@ -97,12 +97,11 @@ void HandRecognition::binarize(){
 }
 
 void HandRecognition::findHand(){
-	temp_img = bin_img.clone();
 	hand_img = cv::Mat(bin_img.rows, bin_img.cols, CV_8U, cv::Scalar(0, 0, 0, 0));
 
-	cv::findContours(temp_img, contours, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_SIMPLE);
+	cv::findContours(bin_img.clone(), contours, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_SIMPLE);
 	double max_size = 0;
-	soatRegion(contours);
+	sortRegion(contours);
 
 	for (std::vector<std::vector<cv::Point>>::iterator it = may_be_hand_contours.begin(); it != may_be_hand_contours.end(); it++){
 		if (getFingers(*it)){
@@ -121,6 +120,96 @@ void HandRecognition::findHand(){
 		}
 	}
 }
+
+//bool HandRecognition::trackHand(){
+//	cv::findContours(bin_img.clone(), contours, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_SIMPLE);
+//	double max_size = 0;
+//	sortRegion(contours);
+//
+//	std::vector<cv::Point> contour;
+//	double dist=-1;
+//	for (std::vector<std::vector<cv::Point>>::iterator it = may_be_hand_contours.begin(); it != may_be_hand_contours.end(); it++){
+//		cv::Moments moment = cv::moments(*it);
+//		double temp = UsePoints::distance(cv::Point(moment.m01 / moment.m00, moment.m10 / moment.m00), log->getCentroid);
+//		if (dist > temp||dist==-1){
+//			dist = temp;
+//			contour = (*it);
+//		}
+//	}
+//
+//	cv::Moments moment = cv::moments(contour);
+//	cv::Point centroid = cv::Point(moment.m01 / moment.m00, moment.m10 / moment.m00);
+//
+//	//輪郭がはみ出ていたら手でないと判定
+//	cv::Rect rect = cv::boundingRect(contour);
+//	if (rect.x == 1 || rect.y == 1 || rect.x + rect.width > src_img.cols - 1 || rect.y + rect.height > src_img.rows - 1)
+//		return false;
+//
+//	//近似ポリゴンの取得
+//	cv::approxPolyDP(cv::Mat(contour), hand_poly, rect.height / 15, true);
+//	if (hand_poly.size() < 4)
+//		return false;
+//
+//	//近似ポリゴンの描画
+//	for (int i = 0; i < hand_poly.size(); ++i)
+//		cv::line(hand_img, hand_poly[i], hand_poly[i + 1 < hand_poly.size() ? i + 1 : 0], cv::Scalar(255, 0, 0), 2, CV_AA);
+//
+//	//凸包の取得
+//	cv::convexHull(hand_poly, hand_hull, true);
+//
+//	//凸包の描画
+//	int hnum = hand_hull.size();
+//	for (int i = 0; i < hnum; ++i)
+//		cv::line(hand_img, hand_poly[hand_hull[i]], hand_poly[hand_hull[i + 1 < hnum ? i + 1 : 0]], cv::Scalar(255, 0, 0, 0), 2, CV_AA);
+//
+//	//凹状欠損の取得
+//	cv::convexityDefects(hand_poly, hand_hull, convexityDefects);
+//	if (convexityDefects.size() < 2)//
+//		return false;
+//	
+//	int  finger_width = std::sqrt(moment.m00) / 4;
+//
+//	std::vector<cv::Point> fingers;
+//	std::vector<cv::Point> temp;
+//
+//	//指の候補でないものを削除&親指の確認
+//	for (std::vector<cv::Vec4i>::iterator it = convexityDefects.begin(); it != convexityDefects.end();){
+//		double cos = UsePoints::getCos(hand_poly[(*it)[2]], hand_poly[(*it)[0]], hand_poly[(*it)[1]]);
+//		std::cout << (*it)[3] / 256 << std::endl;
+//		if (cos>std::cos(1.7) && (*it)[3] / 256 > finger_width){
+//			temp.push_back(hand_poly[(*it)[0]]);
+//			temp.push_back(hand_poly[(*it)[1]]);
+//			it++;
+//		}
+//		else{
+//			it = convexityDefects.erase(it);
+//		}
+//	}
+//
+//	//同じ指のダブりを消す
+//	for (int i = 0; i < temp.size() / 2; i++){
+//		int a = (i * 2 + 1) % temp.size();
+//		int b = (i * 2 + 2) % temp.size();
+//		double d = UsePoints::distance(temp[a], temp[b]);
+//		if (d < finger_width){
+//			fingers.push_back(cv::Point((temp[(i * 2 + 1) % temp.size()].x + temp[(i * 2 + 2) % temp.size()].x) / 2
+//				, (temp[(i * 2 + 1) % temp.size()].y + temp[(i * 2 + 2) % temp.size()].y) / 2));
+//		}
+//		else{
+//			fingers.push_back(temp[(i * 2 + 1) % temp.size()]);
+//			fingers.push_back(temp[(i * 2 + 2) % temp.size()]);
+//		}
+//	}
+//	//std::cout << fingers.size() << std::endl;
+//	if (fingers.size() < 1){//指先候補が２本以下なら手でない
+//		return false;
+//	}
+//
+//	if (fingers.size() >5){//6本以上でも……ねえ？
+//		return false;
+//	}
+//
+//}
 
 bool HandRecognition::getFingers(std::vector<cv::Point> contour){
 	//輪郭がはみ出ていたら手でないと判定
@@ -156,7 +245,7 @@ bool HandRecognition::getFingers(std::vector<cv::Point> contour){
 	std::vector<cv::Point> fingers;
 	std::vector<cv::Point> temp;
 
-	//指の候補でないものを削除&親指の確認
+	//指の候補でないものを削除
 	for (std::vector<cv::Vec4i>::iterator it = convexityDefects.begin(); it != convexityDefects.end();){
 		double cos = UsePoints::getCos(hand_poly[(*it)[2]], hand_poly[(*it)[0]], hand_poly[(*it)[1]]);
 		std::cout << (*it)[3] / 256 << std::endl;
@@ -264,7 +353,7 @@ bool HandRecognition::getFingers(std::vector<cv::Point> contour){
 		cv::Point point = cv::Point(p.x + centroid.x, p.y + centroid.y);
 		cv::circle(img, point, 5, cv::Scalar(100, 0, 0, 0), -1);
 	}
-	cv::putText(bin_img, std::to_string(finger_width) + "," + std::to_string(maxDistance), cv::Point(0, 30), cv::FONT_HERSHEY_PLAIN, 1, cv::Scalar(120, 0, 0, 0), 3);
+	cv::putText(bin_img, std::to_string(this->centroid.x) + "," + std::to_string(this->centroid.y), cv::Point(0, 30), cv::FONT_HERSHEY_PLAIN, 1, cv::Scalar(120, 0, 0, 0), 3);
 	if (getScreen){
 		getScreenImage(bin_img);
 	}
@@ -303,7 +392,6 @@ cv::Point HandRecognition::getCentroid(std::vector<cv::Point> contour){
 	return p;
 }
 
-
 void HandRecognition::setMouseMode(int mode){
 	mouseMode = mode;
 }
@@ -311,7 +399,7 @@ int HandRecognition::getMouseMode(){
 	return mouseMode;
 }
 
-void HandRecognition::soatRegion(std::vector<std::vector<cv::Point>> contour){
+void HandRecognition::sortRegion(std::vector<std::vector<cv::Point>> contour){
 	double area = 0;
 	may_be_hand_contours.clear();
 	double sizes[] = { 0, 0, 0 };
@@ -332,11 +420,9 @@ void HandRecognition::soatRegion(std::vector<std::vector<cv::Point>> contour){
 				}
 				it++;
 			}
-			//			}
 		}
 	}
 }
-
 
 void HandRecognition::callback(int event, int x, int y, int flags, void* param){
 	if (event == CV_EVENT_LBUTTONDOWN){
