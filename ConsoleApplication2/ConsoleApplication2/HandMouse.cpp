@@ -2,19 +2,8 @@
 
 HandMouse::HandMouse(HandRecognition* hr){
 	this->hand = hr;
-	mouse_point = POINT();
-	GetCursorPos(&mouse_point);
-	
+	privious_point.x = 0;
 	int i = ShowCursor(true);
-	while (notMouse==hand->getMouseMode()){
-		hand->update();
-	}
-	privious_point =hand->getCentroid();
-	next_index = 0;
-
-	moveCount = 0;
-	touchedCount = 0;
-	touched = false;
 }
 HandMouse::~HandMouse(){
 
@@ -23,44 +12,49 @@ HandMouse::~HandMouse(){
 
 
 void HandMouse::update(){
-	const POINT p = hand->getCentroid();
+	if (privious_point.x == 0){
+		privious_point = hand->getCentroid();
+	}
+	POINT centroid = hand->getCentroid();
+	int move_x = centroid.x - privious_point.x;
+	int move_y = centroid.y - privious_point.y;
+	if (abs(move_x) > max_distance || abs(move_y) > max_distance){
+		privious_point = hand->getCentroid();
+		return;
+	}
+	std::cout << "b" << std::endl;
 
-	if( hand->getMouseMode() == notMouse||!hand->mousemouse)return;
-	if (p.x - privious_point.x > -15 && p.x - privious_point.x<15 && p.y - privious_point.y>-15 && p.y - privious_point.y < 15){
-		setNextPoint(p);
-		moveMouse();
-	}
-	if (hand->getMouseMode() == isTouched){
-		touchedCount = touchedCount>4 ? 5 : touchedCount + 1;
-		if (touchedCount > 2&&!touched){
-			mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0);
-			touched = true;
-		}
-	}
-	else{
-		if (touched){
-			mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0);
-			touched = false;
-		}
-		touchedCount = 0;
-	}
+	move_x = move_x > 0 ? std::pow(move_x, 3)/15 : std::pow(move_x, 3)/15;
+	move_y = move_y > 0 ? std::pow(move_y, 3) / 15 : std::pow(move_y, 3) / 15;
+	moveMouse(move_x,move_y);
 
-	privious_point = p;
+
+	privious_point = centroid;
+	//if (hand->getMouseMode() == isTouched){
+	//	touchedCount = touchedCount>4 ? 5 : touchedCount + 1;
+	//	if (touchedCount > 2&&!touched){
+	//		mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0);
+	//		touched = true;
+	//	}
+	//}
+	//else{
+	//	if (touched){
+	//		mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0);
+	//		touched = false;
+	//	}
+	//	touchedCount = 0;
+	//}
+
 }
 
-void HandMouse::setNextPoint(POINT p){
-	//if (isMove){
-		GetCursorPos(&mouse_point);
-		mouse_point.x += p.x > privious_point.x ? (int)std::pow((p.x - privious_point.x), 3) / 10 : (int)std::pow((p.x - privious_point.x), 3) / 10;
-		mouse_point.y += p.y > privious_point.y ? (int)std::pow((p.y - privious_point.y), 3) / 10 : (int)std::pow((p.y - privious_point.y), 3) / 10;
-		std::cout << (int)std::pow((p.x - privious_point.x), 3) / 10 << "," << (int)std::pow((p.y - privious_point.y), 3) / 10 << std::endl;
-		//}
-}
 
 const void HandMouse::moveMouse(int x,int y){
-	int dist = x < y ? x : y;
-	for (int i = 0; i < dist; i++){
-		SetCursorPos(mouse_point.x+x*i/dist, mouse_point.y+y*i/dist);
-	}
+	int dist = x < y ? x : y; 
+	POINT mouse_point;
+	GetCursorPos(&mouse_point);
+	std::cout << mouse_point.x << "," << mouse_point.y << std::endl;
+	std::cout << mouse_point.x + x << "," << mouse_point.y + y << std::endl;
+	
+	SetCursorPos(mouse_point.x + x, mouse_point.y + y);
 }
 

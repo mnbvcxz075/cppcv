@@ -10,7 +10,8 @@ public:
 	~HandMouse();
 
 private:
-	static const int lower_distance = 3;
+	const int max_distance = 30;
+	const int min_distance = 4;
 	POINT privious_point;
 	int next_index;
 	POINT mouse_point;

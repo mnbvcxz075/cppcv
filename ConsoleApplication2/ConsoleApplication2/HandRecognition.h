@@ -17,10 +17,10 @@ public:
 	static bool getScreen;
 	HandRecognition();
 	HandRecognition(const HandRecognition&);
-	HandRecognition(cv::Mat);
-	HandRecognition(cv::Mat,TimeCounter*);
-	HandRecognition(cv::VideoCapture);
-	HandRecognition(cv::VideoCapture, TimeCounter*);
+	HandRecognition(cv::Mat, HandLog*);
+	HandRecognition(cv::Mat,TimeCounter*,HandLog*);
+	HandRecognition(cv::VideoCapture, HandLog*);
+	HandRecognition(cv::VideoCapture, TimeCounter*, HandLog*);
 	~HandRecognition();
 
 

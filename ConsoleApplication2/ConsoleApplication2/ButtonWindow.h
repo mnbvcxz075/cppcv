@@ -1,5 +1,6 @@
 #pragma once
 #include"Setting.h"
+#include"opencv2\opencv.hpp"
 
 
 class ButtonWindow{
