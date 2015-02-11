@@ -1,6 +1,5 @@
 #pragma once
 
-
 #include"Setting.h"
 #include"HandRecognition.h"
 

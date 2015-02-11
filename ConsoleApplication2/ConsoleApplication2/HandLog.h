@@ -27,6 +27,5 @@ private:
 	cv::Point centroid;
 	std::vector<cv::Point> fingersMean;
 
-
 	std::vector<cv::Point> sort(std::vector<cv::Point>*);
 };

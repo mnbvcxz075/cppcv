@@ -6,7 +6,6 @@
 #include"HandLog.h"
 #include"TimeCounter.h"
 
-
 class HandRecognition{
 private:
 	const int NUM_OF_FINGER = 5;
@@ -22,10 +21,8 @@ public:
 	HandRecognition(cv::VideoCapture, TimeCounter*, HandLog*);
 	~HandRecognition();
 
-
 	int upper[3];// = cv::Scalar(255, 255, 255, 255);
 	int lower[3];// = cv::Scalar(225, 180, 180, 0);
-
 
 private:
 	HandRecognition();
@@ -49,8 +46,6 @@ private:
 	cv::Point maxDistPoint;
 	cv::Point* fingers;
 
-
-	cv::Mat temp_img;
 	cv::VideoCapture capture;
 
 	int mouseMode;

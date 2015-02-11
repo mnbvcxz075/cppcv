@@ -72,10 +72,10 @@ void HandRecognition::update(){
 
 	cv::imshow(WINDOW_NAME, src_img);
 	cv::imshow(WINDOW_NAME+'3', bin_img);
-
 }
 
 void HandRecognition::binarize(){
+	cv::Mat temp_img;
 	cv::cvtColor(src_img, temp_img, bin_type);
 	if (lower[0] < upper[0]){
 		cv::inRange(temp_img, cv::Scalar(lower[0], lower[1], lower[2], 0), cv::Scalar(upper[0], upper[1], upper[2], 0), bin_img);
@@ -130,7 +130,7 @@ bool HandRecognition::getFingers(std::vector<cv::Point> contour){
 
 	//‹ßŽ—ƒ|ƒŠƒSƒ“‚Ì•`‰æ
 	for (int i = 0; i < hand_poly.size(); ++i)
-		//cv::line(bin_img, hand_poly[i], hand_poly[i + 1 < hand_poly.size() ? i + 1 : 0], cv::Scalar(255, 0, 0), 2, CV_AA);
+		cv::line(bin_img, hand_poly[i], hand_poly[i + 1 < hand_poly.size() ? i + 1 : 0], cv::Scalar(255, 0, 0), 2, CV_AA);
 
 	//“Ê•ï‚ÌŽæ“¾
 	cv::convexHull(hand_poly, hand_hull, true);
