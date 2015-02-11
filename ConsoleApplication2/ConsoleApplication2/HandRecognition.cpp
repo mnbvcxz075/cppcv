@@ -61,17 +61,14 @@ void HandRecognition::update(){
 	else
 		src_img = img.clone();
 
+	//¶‰E”½“]
 	cv::flip(src_img, src_img, 1);
 	handContour.clear();
 
 	updateButtons();
 
-	tc->start("binarize");
 	binarize();
-	tc->stop("binarize");
-	tc->start("findHand");
 	findHand();
-	tc->stop("findHand");
 
 	cv::imshow(WINDOW_NAME, src_img);
 	cv::imshow(WINDOW_NAME+'3', bin_img);
@@ -91,11 +88,9 @@ void HandRecognition::binarize(){
 		cv::add(bin_img, hand_img, bin_img);
 	}
 
-	tc->start("noize");
 	cv::erode(bin_img, bin_img, cv::Mat(), cv::Point(-1, -1), 1);
 	cv::dilate(bin_img, bin_img, cv::Mat(), cv::Point(-1, -1), 1);
 	//cv::erode(bin_img, bin_img, cv::Mat(), cv::Point(-1, -1), 2);
-	tc->stop("noize");
 }
 
 void HandRecognition::findHand(){
@@ -114,7 +109,6 @@ void HandRecognition::findHand(){
 			case isTouched:color = cv::Scalar(0, 255, 0, 0); break;
 			default:color = cv::Scalar(0, 0, 0, 0); break;
 			}
-			//cv::circle(src_img, centroid, 5, color, -1);
 			break;
 		}
 		else{
@@ -271,13 +265,13 @@ bool HandRecognition::getFingers(std::vector<cv::Point> contour){
 	}
 	cv::imshow(WINDOW_NAME + '2', img);
 	for (int i = 0; i<5; i++){
-		std::cout << log->existFingers[i];
+		std::cout << log->getExist()[i];
 	}
 	std::cout << std::endl;
 
 
 	if (fingers.size() > 2){
-		mouseMode = log->existFingers[thumb] ? isTouched : isMouse;
+		mouseMode = log->getExist()[thumb] ? isTouched : isMouse;
 	}
 	else {
 		mouseMode = notMouse;

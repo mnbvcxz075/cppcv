@@ -10,20 +10,19 @@ class HandLog{
 public:
 	HandLog();
 	~HandLog();
-
-	void setFingers(std::vector<cv::Point>, cv::Point);
-	cv::Point getCVCentroid();
-	POINT getCentroid();
-	POINT getPriviousCentroid();
-
-	bool ready();
+	
+	bool* getExist();
 	std::vector<cv::Point> getFingers();
-	bool existFingers[5];
-	std::vector<cv::Point> fingersLog[5];
+	void setFingers(std::vector<cv::Point>, cv::Point);
+
+	POINT getCentroid();
+
 private:
 	const int errorDistance = 999;
 	const int logSize = 10;
 
+	bool existFingers[5];
+	std::vector<cv::Point> fingersLog[5];
 	int size;
 	int errorWeight;
 	int LRweight;

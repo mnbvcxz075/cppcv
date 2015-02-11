@@ -15,16 +15,10 @@ POINT HandLog::getCentroid(){
 	p.y = centroid.y;
 	return p;
 }
-POINT HandLog::getPriviousCentroid(){
-	POINT p;
-	p.x = privious_centroid.x;
-	p.y = privious_centroid.y;
-	return p;
-}
-cv::Point HandLog::getCVCentroid(){
-	return this->centroid;
-}
 
+bool* HandLog::getExist(){
+	return existFingers;
+}
 
 void HandLog::setFingers(std::vector<cv::Point> fingers, cv::Point centroid){
 	if (fingers.size()>5)//w‚Ì”‚ª‚¨‚©‚µ‚¢
@@ -155,6 +149,3 @@ std::vector<cv::Point> HandLog::getFingers(){
 	return fingersMean;
 }
 
-bool HandLog::ready(){
-	return size >= logSize;
-}
