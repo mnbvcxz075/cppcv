@@ -15,7 +15,6 @@ private:
 public:
 	static bool mousemouse;
 	static bool getScreen;
-	HandRecognition();
 	HandRecognition(const HandRecognition&);
 	HandRecognition(cv::Mat, HandLog*);
 	HandRecognition(cv::Mat,TimeCounter*,HandLog*);
@@ -29,8 +28,7 @@ public:
 
 
 private:
-	//cv::Scalar upper = cv::Scalar(195, 235, 235, 255);//Lab
-	//cv::Scalar lower = cv::Scalar(1, 120, 100, 0);
+	HandRecognition();
 	const int bin_type = CV_BGR2HSV;
 	ButtonWindow* button;
 
@@ -74,8 +72,6 @@ private:
 	cv::Point getCentroid(std::vector<cv::Point>);
 
 
-	void kmeanFiltering(cv::Mat, cv::Mat);
-	void meanShiftFiltering(cv::Mat, cv::Mat);
 	bool getScreenImage(cv::Mat);
 
 	static int req_x, req_y;
