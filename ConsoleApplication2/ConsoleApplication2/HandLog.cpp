@@ -1,9 +1,7 @@
 #include"HandLog.h"
 
 HandLog::HandLog(){
-	LRweight = 0;
 	errorWeight = 0;
-	size = 0;
 	for (int finger = 0; finger < 5; finger++){
 		fingersMean.push_back(cv::Point(0, 0));
 	}
@@ -24,8 +22,6 @@ void HandLog::setFingers(std::vector<cv::Point> fingers, cv::Point centroid){
 	if (fingers.size()>5)//Žw‚Ì”‚ª‚¨‚©‚µ‚¢
 		return;
 
-	this->size < logSize ? this->size++ : 0;
-	this->privious_centroid = this->centroid;
 	this->centroid = centroid;
 
 	struct fingPos{
@@ -112,12 +108,6 @@ void HandLog::setFingers(std::vector<cv::Point> fingers, cv::Point centroid){
 	}
 
 	fingersMean = sort(&fingersMean);
-	if (fingersMean[thumb].y>fingersMean[little].y){
-		LRweight++;
-	}
-	else{
-		LRweight--;
-	}
 }
 
 std::vector<cv::Point> HandLog::sort(std::vector<cv::Point>* points){

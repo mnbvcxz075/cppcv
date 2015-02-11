@@ -23,12 +23,8 @@ private:
 
 	bool existFingers[5];
 	std::vector<cv::Point> fingersLog[5];
-	int size;
 	int errorWeight;
-	int LRweight;
-	bool rightHand;
 	cv::Point centroid;
-	cv::Point privious_centroid;
 	std::vector<cv::Point> fingersMean;
 
 
