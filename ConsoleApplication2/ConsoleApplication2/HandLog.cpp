@@ -7,17 +7,6 @@ HandLog::HandLog(){
 	}
 }
 
-POINT HandLog::getCentroid(){
-	POINT p;
-	p.x = centroid.x;
-	p.y = centroid.y;
-	return p;
-}
-
-bool* HandLog::getExist(){
-	return existFingers;
-}
-
 void HandLog::setFingers(std::vector<cv::Point> fingers, cv::Point centroid){
 	if (fingers.size()>5)//指の数がおかしい
 		return;
@@ -40,7 +29,7 @@ void HandLog::setFingers(std::vector<cv::Point> fingers, cv::Point centroid){
 		fingers[i].y -= centroid.y;
 	}
 
-	//各点ごとの距離を求める
+	//各点につき各指の履歴との距離を求める
 	std::vector<fingPos> may;
 	for (int i = 0; i < fingers.size();i++){
 		for (int finger = 0; finger < 5; finger++){
@@ -48,25 +37,6 @@ void HandLog::setFingers(std::vector<cv::Point> fingers, cv::Point centroid){
 				may.push_back({ UsePoints::distance(fingers[i], fingersMean[finger]), i, finger });
 			}
 		}
-	}
-
-	//距離がおかしい事が続くならlogを捨てる
-	if (may.size()<4){
-		errorWeight++;
-		if (errorWeight>20){
-			for (int finger = 0; finger < fingers.size(); finger++){
-				fingersLog[finger].clear();
-				fingersLog[finger].push_back(fingers[finger]);
-				fingersMean[finger] = fingers[finger];
-			}
-			while (fingersMean.size()<5){
-				fingersMean.push_back(centroid);
-			}
-
-			fingersMean = sort(&fingersMean);
-
-		}
-		return;
 	}
 
 	//距離でソート
@@ -139,3 +109,13 @@ std::vector<cv::Point> HandLog::getFingers(){
 	return fingersMean;
 }
 
+POINT HandLog::getCentroid(){
+	POINT p;
+	p.x = centroid.x;
+	p.y = centroid.y;
+	return p;
+}
+
+bool* HandLog::getExist(){
+	return existFingers;
+}

@@ -30,31 +30,16 @@ void HandMouse::update(){
 
 
 	privious_point = centroid;
-	//if (hand->getMouseMode() == isTouched){
-	//	touchedCount = touchedCount>4 ? 5 : touchedCount + 1;
-	//	if (touchedCount > 2&&!touched){
-	//		mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0);
-	//		touched = true;
-	//	}
-	//}
-	//else{
-	//	if (touched){
-	//		mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0);
-	//		touched = false;
-	//	}
-	//	touchedCount = 0;
-	//}
+
 
 }
+
 
 
 const void HandMouse::moveMouse(int x,int y){
 	int dist = x < y ? x : y; 
 	POINT mouse_point;
-	GetCursorPos(&mouse_point);
-	std::cout << mouse_point.x << "," << mouse_point.y << std::endl;
-	std::cout << mouse_point.x + x << "," << mouse_point.y + y << std::endl;
-	
+	GetCursorPos(&mouse_point);	
 	SetCursorPos(mouse_point.x + x, mouse_point.y + y);
 }
 

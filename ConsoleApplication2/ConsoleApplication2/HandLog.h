@@ -2,7 +2,6 @@
 
 #include"Setting.h"
 #include"UsePoints.h"
-#include"opencv2\opencv.hpp"
 enum{
 	thumb,index,middle,ring,little
 };
