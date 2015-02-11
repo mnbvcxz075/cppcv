@@ -378,7 +378,7 @@ bool HandRecognition::getScreenImage(cv::Mat img){
 		+ std::to_string(pnow->tm_hour) + std::to_string(pnow->tm_min) + std::to_string(pnow->tm_sec) << std::endl;
 
 	cv::imwrite("D:/desktop/" + std::to_string(pnow->tm_year + 1900) + std::to_string(pnow->tm_mon + 1) + std::to_string(pnow->tm_mday)
-		+ std::to_string(pnow->tm_hour) + std::to_string(pnow->tm_min) + std::to_string(pnow->tm_sec)+".png", img);
+		+ std::to_string(pnow->tm_hour) + std::to_string(pnow->tm_min) + std::to_string(pnow->tm_sec)+".png", src_img);
 	getScreen = false;
 	return true;
 }
