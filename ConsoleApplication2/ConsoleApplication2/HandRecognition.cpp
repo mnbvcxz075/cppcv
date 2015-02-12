@@ -14,9 +14,9 @@ HandRecognition::HandRecognition(){
 	upper[0] = 30;
 	lower[0] = 150;
 	upper[1] = 150;
-	lower[1] = 1;
+	lower[1] = 30;
 	upper[2] = 255;
-	lower[2] = 210;
+	lower[2] = 90;
 
 	log = new HandLog();
 
