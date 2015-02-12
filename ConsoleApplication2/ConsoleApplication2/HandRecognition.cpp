@@ -146,7 +146,8 @@ bool HandRecognition::getFingers(std::vector<cv::Point> contour){
 	//w‚ÌŒó•â‚Å‚È‚¢‚à‚Ì‚ğíœ
 	for (std::vector<cv::Vec4i>::iterator it = convexityDefects.begin(); it != convexityDefects.end();){
 		double cos = UsePoints::getCos(hand_poly[(*it)[2]], hand_poly[(*it)[0]], hand_poly[(*it)[1]]);
-		if (cos>std::cos(1.7) && (*it)[3] / 256 > finger_width){
+		std::cout << (*it)[3] / 256 << std::endl;
+		if (cos>std::cos(1.7) && (*it)[3] / 256 > finger_width*2){
 			temp.push_back(hand_poly[(*it)[0]]);
 			temp.push_back(hand_poly[(*it)[1]]);
 			it++;
