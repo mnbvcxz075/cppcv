@@ -5,8 +5,14 @@ int HandRecognition::req_x, HandRecognition::req_y;
 
 HandRecognition::HandRecognition(){
 	req_x = req_y = -1;
+	//upper[0] = 30;
+	//lower[0] = 0;
+	//upper[1] = 150;
+	//lower[1] = 0;
+	//upper[2] = 255;
+	//lower[2] = 200
 	upper[0] = 30;
-	lower[0] = 0;
+	lower[0] = 150;
 	upper[1] = 150;
 	lower[1] = 1;
 	upper[2] = 255;
