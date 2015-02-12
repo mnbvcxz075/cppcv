@@ -13,13 +13,14 @@ private:
 
 public:
 	static bool mousemouse;
-	static bool getScreen;
 	HandRecognition(const HandRecognition&);
-	HandRecognition(cv::Mat, HandLog*);
-	HandRecognition(cv::Mat,TimeCounter*,HandLog*);
-	HandRecognition(cv::VideoCapture, HandLog*);
-	HandRecognition(cv::VideoCapture, TimeCounter*, HandLog*);
+	HandRecognition(cv::Mat);
+	HandRecognition(cv::Mat,TimeCounter*);
+	HandRecognition(cv::VideoCapture);
+	HandRecognition(cv::VideoCapture, TimeCounter*);
 	~HandRecognition();
+
+	void update();
 
 	int upper[3];// = cv::Scalar(255, 255, 255, 255);
 	int lower[3];// = cv::Scalar(225, 180, 180, 0);
@@ -30,13 +31,12 @@ private:
 	ButtonWindow* button;
 
 	cv::Point centroid;
+	double radian;
 	double handRad;
 	TimeCounter *tc;
 
 	cv::Mat img;
 	cv::Mat src_img;
-	cv::Mat gray_img;
-	cv::Mat canny_img;
 	cv::Mat bin_img;
 	cv::Mat hand_img;
 	byte *UVSkinTable;
@@ -44,11 +44,13 @@ private:
 	std::vector<std::vector<cv::Point>> contours;
 	std::vector<std::vector<cv::Point>> may_be_hand_contours;
 	cv::Point maxDistPoint;
-	cv::Point* fingers;
+	cv::Point* fingers;	
+	std::vector<cv::Vec4i> convexityDefects;
+	std::vector<cv::Point> hand_poly;
+	std::vector<int> hand_hull;
+
 
 	cv::VideoCapture capture;
-
-	int mouseMode;
 
 	void static callback(int, int, int, int, void*);
 	void static callback2(int, int, int, int, void*);
@@ -56,23 +58,19 @@ private:
 	void binarize2();
 	void initUVSkinTable();
 	void findHand();
-	bool trackHand();
-	void recognizeHandGesture();
 	void sortRegion(std::vector<std::vector<cv::Point>>);
 	bool getFingers(std::vector<cv::Point>);
 	void updateButtons();
-	std::vector<cv::Vec4i> convexityDefects;
-	std::vector<cv::Point> hand_poly;
-	std::vector<int> hand_hull;
 	cv::Point getCentroid(std::vector<cv::Point>);
 
 
 	bool getScreenImage(cv::Mat);
 
-	static int req_x, req_y;
+	static int req_x, req_y;	
+	static bool getScreen;
+
 public:
 	POINT getCentroid();
-	void update();
-	void setMouseMode(int);
-	int getMouseMode();
+	bool isTurned();
+	bool* existFingers();
 };

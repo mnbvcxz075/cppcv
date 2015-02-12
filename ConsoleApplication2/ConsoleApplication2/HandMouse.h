@@ -14,10 +14,7 @@ private:
 	POINT privious_point;
 	int next_index;
 	POINT mouse_point;
-	int moveCount;
-	int touchedCount;
-	bool touched;
-	bool handd;
+	bool isLeftClicked;
 
 	HandRecognition* hand;
 

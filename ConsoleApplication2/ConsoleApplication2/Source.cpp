@@ -44,8 +44,7 @@ int main(int argc, char** argv)
 	}
 
 	TimeCounter* tc = new TimeCounter();
-	HandLog* log = new HandLog();
-	HandRecognition hand(img,tc,log);
+	HandRecognition hand(cap,tc);
 
 	HandMouse mouse(&hand);
 	int timer = timeGetTime();

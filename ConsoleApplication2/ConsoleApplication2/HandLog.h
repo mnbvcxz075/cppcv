@@ -18,7 +18,7 @@ public:
 
 private:
 	const int errorDistance = 999;
-	const int logSize = 100;
+	const int logSize = 30;
 
 	bool existFingers[5];
 	std::vector<cv::Point> fingersLog[5];

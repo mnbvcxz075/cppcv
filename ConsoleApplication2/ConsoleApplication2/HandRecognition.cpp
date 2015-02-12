@@ -8,11 +8,10 @@ HandRecognition::HandRecognition(){
 	upper[0] = 30;
 	lower[0] = 0;
 	upper[1] = 150;
-	lower[1] = 0;
+	lower[1] = 1;
 	upper[2] = 255;
-	lower[2] = 200;
+	lower[2] = 210;
 
-	mouseMode = notMouse;
 	log = new HandLog();
 
 	fingers = new cv::Point[NUM_OF_FINGER];
@@ -26,28 +25,27 @@ HandRecognition::HandRecognition(){
 	button = new ButtonWindow();
 
 }
-HandRecognition::HandRecognition(cv::Mat img, HandLog* log)
+HandRecognition::HandRecognition(cv::Mat img)
 :HandRecognition()
 {
-	this->log = log;
 	this->img = img;
 	src_img = img.clone();
 
 }
-HandRecognition::HandRecognition(cv::Mat img, TimeCounter* tc,HandLog* log)
-: HandRecognition(img,log)
+HandRecognition::HandRecognition(cv::Mat img, TimeCounter* tc)
+: HandRecognition(img)
 {
 	this->tc = tc;
 }
-HandRecognition::HandRecognition(cv::VideoCapture cap,HandLog* log)
+HandRecognition::HandRecognition(cv::VideoCapture cap)
 : HandRecognition()
 {
 	this->log = log;
 	this->capture = cap;
 	capture >> src_img;
 }
-HandRecognition::HandRecognition(cv::VideoCapture cap, TimeCounter* tc, HandLog* log)
-: HandRecognition(cap,log)
+HandRecognition::HandRecognition(cv::VideoCapture cap, TimeCounter* tc)
+: HandRecognition(cap)
 {
 	this->tc = tc;
 }
@@ -102,13 +100,6 @@ void HandRecognition::findHand(){
 
 	for (std::vector<std::vector<cv::Point>>::iterator it = may_be_hand_contours.begin(); it != may_be_hand_contours.end(); it++){
 		if (getFingers(*it)){
-			cv::Scalar color;
-			switch (mouseMode){
-			case notMouse:color = cv::Scalar(255, 0, 0, 0); break;
-			case isMouse:color = cv::Scalar(0, 0, 255, 0); break;
-			case isTouched:color = cv::Scalar(0, 255, 0, 0); break;
-			default:color = cv::Scalar(0, 0, 0, 0); break;
-			}
 			break;
 		}
 		else{
@@ -187,9 +178,6 @@ bool HandRecognition::getFingers(std::vector<cv::Point> contour){
 		return false;
 	}
 
-
-
-
 	//ó÷äsâÊëúÇÃçÏê¨
 	contour = UsePoints::movePoints(contour, rect.x, rect.y);
 	fingers = UsePoints::movePoints(fingers, rect.x, rect.y);
@@ -216,24 +204,23 @@ bool HandRecognition::getFingers(std::vector<cv::Point> contour){
 
 	//èdêSÇ∆ãóó£ïœä∑ÇópÇ¢Çƒó÷äsìôÇâÒì]
 	double	cos = UsePoints::getCos(centroid, cv::Point(centroid.x, centroid.y + 10), maxDistPoint);
-	double	rad = maxDistPoint.x - centroid.x > 0 ? acos(cos) : -acos(cos);
-	
-	//contour = UsePoints::turnPoints(contour, rad, centroid);
-	//fingers = UsePoints::turnPoints(fingers, rad, centroid);
-	//maxDistPoint = UsePoints::turnPoint(maxDistPoint, rad, centroid);
+	radian = maxDistPoint.x - centroid.x > 0 ? acos(cos) : -acos(cos);
+	fingers = UsePoints::turnPoints(fingers, radian, centroid);
+	contour = UsePoints::turnPoints(contour, radian, centroid);
+	maxDistPoint = UsePoints::turnPoint(maxDistPoint, radian, centroid);
 	//ç∂è„Ç…äÒÇπÇÈ
-	//cv::Rect rect2 = cv::boundingRect(contour);
-	//contour = UsePoints::movePoints(contour, rect2.x, rect2.y);
-	//fingers = UsePoints::movePoints(fingers, rect2.x, rect2.y);
-	//maxDistPoint.x -= rect2.x;
-	//maxDistPoint.y -= rect2.y;
-	//centroid.x -= rect2.x;
-	//centroid.y -= rect2.y;
+	cv::Rect rect2 = cv::boundingRect(contour);
+	contour = UsePoints::movePoints(contour, rect2.x, rect2.y);
+	fingers = UsePoints::movePoints(fingers, rect2.x, rect2.y);
+	maxDistPoint.x -= rect2.x;
+	maxDistPoint.y -= rect2.y;
+	centroid.x -= rect2.x;
+	centroid.y -= rect2.y;
 	//âÒì]å„ÇÃâÊëúÇÃçÏê¨
-	//img = cv::Mat(rect2.height, rect2.width, CV_8U, cv::Scalar(0, 0, 0));
-	//contours.clear();
-	//contours.push_back(contour);
-	//cv::fillPoly(img, contours, cv::Scalar(255, 0));
+	img = cv::Mat(rect2.height, rect2.width, CV_8U, cv::Scalar(0, 0, 0));
+	contours.clear();
+	contours.push_back(contour);
+	cv::fillPoly(img, contours, cv::Scalar(255, 0));
 
 
 	hand_img = cv::Mat(img.rows, img.cols, CV_8U, cv::Scalar(0, 0, 0, 0));
@@ -257,11 +244,8 @@ bool HandRecognition::getFingers(std::vector<cv::Point> contour){
 	if (getScreen){
 		getScreenImage(bin_img);
 	}
-	cv::imshow(WINDOW_NAME + '2', img);
-
+	cv::imshow(WINDOW_NAME + "2", img);
 	return true;
-
-
 }
 
 POINT HandRecognition::getCentroid(){
@@ -278,11 +262,12 @@ cv::Point HandRecognition::getCentroid(std::vector<cv::Point> contour){
 	return p;
 }
 
-void HandRecognition::setMouseMode(int mode){
-	mouseMode = mode;
+bool HandRecognition::isTurned(){
+	return radian > 1;
 }
-int HandRecognition::getMouseMode(){
-	return mouseMode;
+
+bool* HandRecognition::existFingers(){
+	return log->getExist();
 }
 
 void HandRecognition::sortRegion(std::vector<std::vector<cv::Point>> contour){
