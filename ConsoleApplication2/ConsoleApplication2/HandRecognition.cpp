@@ -12,11 +12,11 @@ HandRecognition::HandRecognition(){
 	//upper[2] = 255;
 	//lower[2] = 200
 	upper[0] = 30;
-	lower[0] = 150;
+	lower[0] = 140;
 	upper[1] = 150;
-	lower[1] = 30;
+	lower[1] = 20;
 	upper[2] = 255;
-	lower[2] = 90;
+	lower[2] = 0;
 
 	log = new HandLog();
 
@@ -65,6 +65,7 @@ void HandRecognition::update(){
 	else
 		src_img = img.clone();
 
+	cv::resize(src_img, src_img, cv::Size(),0.5,0.5);
 	//ç∂âEîΩì]
 	cv::flip(src_img, src_img, 1);
 	handContour.clear();
@@ -81,14 +82,17 @@ void HandRecognition::update(){
 void HandRecognition::binarize(){
 	cv::Mat temp_img;
 	cv::cvtColor(src_img, temp_img, bin_type);
+	tc->start("inRange");
+	cv::medianBlur(temp_img, temp_img, 5); 
+	tc->stop("inRange");
+
+
 	if (lower[0] < upper[0]){
 		cv::inRange(temp_img, cv::Scalar(lower[0], lower[1], lower[2], 0), cv::Scalar(upper[0], upper[1], upper[2], 0), bin_img);
 	}
 	else{
-		tc->start("inRange");
 		cv::inRange(temp_img, cv::Scalar(0, lower[1], lower[2], 0), cv::Scalar(upper[0], upper[1], upper[2], 0), bin_img);
 		cv::inRange(temp_img, cv::Scalar(lower[0], lower[1], lower[2], 0), cv::Scalar(180, upper[1], upper[2], 0), hand_img);
-		tc->stop("inRange");
 		cv::add(bin_img, hand_img, bin_img);
 	}
 
@@ -99,13 +103,14 @@ void HandRecognition::binarize(){
 
 void HandRecognition::findHand(){
 	hand_img = cv::Mat(bin_img.rows, bin_img.cols, CV_8U, cv::Scalar(0, 0, 0, 0));
-
+	hand = false;
 	cv::findContours(bin_img.clone(), contours, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_SIMPLE);
 	double max_size = 0;
 	sortRegion(contours);
 
 	for (std::vector<std::vector<cv::Point>>::iterator it = may_be_hand_contours.begin(); it != may_be_hand_contours.end(); it++){
 		if (getFingers(*it)){
+			hand = true;
 			break;
 		}
 		else{
@@ -152,8 +157,7 @@ bool HandRecognition::getFingers(std::vector<cv::Point> contour){
 	//éwÇÃåÛï‚Ç≈Ç»Ç¢Ç‡ÇÃÇçÌèú
 	for (std::vector<cv::Vec4i>::iterator it = convexityDefects.begin(); it != convexityDefects.end();){
 		double cos = UsePoints::getCos(hand_poly[(*it)[2]], hand_poly[(*it)[0]], hand_poly[(*it)[1]]);
-		std::cout << (*it)[3] / 256 << std::endl;
-		if (cos>std::cos(1.7) && (*it)[3] / 256 > finger_width*2){
+		if (cos>std::cos(1.7) && (*it)[3] / 256 > finger_width*1.5){
 			temp.push_back(hand_poly[(*it)[0]]);
 			temp.push_back(hand_poly[(*it)[1]]);
 			it++;
@@ -275,6 +279,10 @@ bool HandRecognition::isTurned(){
 
 bool* HandRecognition::existFingers(){
 	return log->getExist();
+}
+
+bool HandRecognition::existHand(){
+	return hand;
 }
 
 void HandRecognition::sortRegion(std::vector<std::vector<cv::Point>> contour){

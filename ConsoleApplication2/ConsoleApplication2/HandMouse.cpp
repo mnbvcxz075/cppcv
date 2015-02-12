@@ -13,6 +13,10 @@ HandMouse::~HandMouse(){
 
 
 void HandMouse::update(){
+	if (!hand->existHand()||!hand->existFingers()[thumb]){
+		privious_point.x = 0;
+		return;
+	}
 	if (privious_point.x == 0){
 		privious_point = hand->getCentroid();
 	}
@@ -23,15 +27,9 @@ void HandMouse::update(){
 		privious_point = hand->getCentroid();
 		return;
 	}
-	if (hand->existFingers()[thumb]){
-		move_x = move_x > 0 ? std::pow(move_x, 3) / 15 : std::pow(move_x, 3) / 15;
-		move_y = move_y > 0 ? std::pow(move_y, 3) / 15 : std::pow(move_y, 3) / 15;
-	}
-	else{
-		std::cout << "thumb" << std::endl;
-
-	}
-	moveMouse(move_x,move_y);
+		move_x = move_x > 0 ? std::pow(move_x, 2): -std::pow(move_x, 2) ;
+		move_y = move_y > 0 ? std::pow(move_y, 2) : -std::pow(move_y, 2) ;
+		moveMouse(move_x,move_y);
 
 	privious_point = centroid;
 
@@ -59,13 +57,11 @@ void HandMouse::update(){
 
 const void HandMouse::moveMouse(int x,int y){
 	int dist = abs(abs(x) > abs(y) ? x : y);
-	std::cout << x << "," << y << "," << dist<< std::endl;
 	POINT mouse_point;
 	GetCursorPos(&mouse_point);	
-	for (int i = 0; i < dist; i++){
-		SetCursorPos(mouse_point.x + x/dist*i, mouse_point.y + y/dist*i);
-		std::cout << x / dist*i << std::endl;
-	}
-	//SetCursorPos(mouse_point.x + x, mouse_point.y + y);
+	//for (int i = 0; i < dist; i++){
+	//	SetCursorPos(mouse_point.x + x / dist*i, mouse_point.y + y / dist*i);
+	//}
+	SetCursorPos(mouse_point.x + x, mouse_point.y + y);
 }
 

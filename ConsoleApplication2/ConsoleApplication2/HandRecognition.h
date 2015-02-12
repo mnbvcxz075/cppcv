@@ -68,8 +68,9 @@ private:
 
 	static int req_x, req_y;	
 	static bool getScreen;
-
+	bool hand;
 public:
+	bool existHand();
 	POINT getCentroid();
 	bool isTurned();
 	bool* existFingers();
