@@ -5,12 +5,18 @@ int HandRecognition::req_x, HandRecognition::req_y;
 
 HandRecognition::HandRecognition(){
 	req_x = req_y = -1;
+	//upper[0] = 30;
+	//lower[0] = 0;
+	//upper[1] = 150;
+	//lower[1] = 0;
+	//upper[2] = 255;
+	//lower[2] = 200
 	upper[0] = 30;
-	lower[0] = 0;
+	lower[0] = 150;
 	upper[1] = 150;
-	lower[1] = 0;
+	lower[1] = 30;
 	upper[2] = 255;
-	lower[2] = 200;
+	lower[2] = 90;
 
 	mouseMode = notMouse;
 	log = new HandLog();
@@ -161,7 +167,7 @@ bool HandRecognition::getFingers(std::vector<cv::Point> contour){
 	for (std::vector<cv::Vec4i>::iterator it = convexityDefects.begin(); it != convexityDefects.end();){
 		double cos = UsePoints::getCos(hand_poly[(*it)[2]], hand_poly[(*it)[0]], hand_poly[(*it)[1]]);
 		std::cout << (*it)[3] / 256 << std::endl;
-		if (cos>std::cos(1.7) && (*it)[3] / 256 > finger_width){
+		if (cos>std::cos(1.7) && (*it)[3] / 256 > finger_width*2){
 			temp.push_back(hand_poly[(*it)[0]]);
 			temp.push_back(hand_poly[(*it)[1]]);
 			it++;
