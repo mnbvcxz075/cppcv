@@ -5,6 +5,7 @@ int HandRecognition::req_x, HandRecognition::req_y;
 
 HandRecognition::HandRecognition(){
 	req_x = req_y = -1;
+	trackHand = 0;
 	//upper[0] = 30;
 	//lower[0] = 0;
 	//upper[1] = 150;
@@ -14,10 +15,11 @@ HandRecognition::HandRecognition(){
 	upper[0] = 30;
 	lower[0] = 140;
 	upper[1] = 150;
-	lower[1] = 20;
+	lower[1] = 0;
 	upper[2] = 255;
-	lower[2] = 0;
+	lower[2] = 200;
 
+	mousemouse = false;
 	log = new HandLog();
 
 	fingers = new cv::Point[NUM_OF_FINGER];
@@ -59,21 +61,30 @@ HandRecognition::~HandRecognition(){
 }
 
 void HandRecognition::update(){
+	tc->start("a");
+	tc->start("aa");
 	//ˆ—‰æ‘œ‚ÌŽæ“¾
 	if (capture.isOpened())
 		capture >> src_img;
 	else
 		src_img = img.clone();
 
-	cv::resize(src_img, src_img, cv::Size(),0.5,0.5);
+	tc->stop("aa");
+	tc->start("ab");
 	//¶‰E”½“]
 	cv::flip(src_img, src_img, 1);
+	tc->stop("ab");
 	handContour.clear();
 
 	updateButtons();
+	tc->stop("a");
 
+	tc->start("b");
 	binarize();
+	tc->stop("b");
+	tc->start("c");
 	findHand();
+	tc->stop("c");
 
 	cv::imshow(WINDOW_NAME, src_img);
 	cv::imshow(WINDOW_NAME+'3', bin_img);
@@ -82,9 +93,9 @@ void HandRecognition::update(){
 void HandRecognition::binarize(){
 	cv::Mat temp_img;
 	cv::cvtColor(src_img, temp_img, bin_type);
-	tc->start("inRange");
-	cv::medianBlur(temp_img, temp_img, 5); 
-	tc->stop("inRange");
+	//tc->start("inRange");
+	//cv::medianBlur(temp_img, temp_img, 5); 
+	//tc->stop("inRange");
 
 
 	if (lower[0] < upper[0]){
@@ -110,11 +121,12 @@ void HandRecognition::findHand(){
 
 	for (std::vector<std::vector<cv::Point>>::iterator it = may_be_hand_contours.begin(); it != may_be_hand_contours.end(); it++){
 		if (getFingers(*it)){
+			trackHand = trackHand > 9 ? 10 : trackHand + 1;
 			hand = true;
 			break;
 		}
 		else{
-			cv::rectangle(hand_img, cv::Point(0, 0), cv::Point(hand_img.cols, hand_img.rows), cv::Scalar(0, 0, 0, 0), -1);
+			trackHand = 0;
 		}
 	}
 }
@@ -180,6 +192,7 @@ bool HandRecognition::getFingers(std::vector<cv::Point> contour){
 			fingers.push_back(point2);
 		}
 	}
+
 
 	if (fingers.size() < 3){//ŽwæŒó•â‚ª3–{ˆÈ‰º‚È‚çŽè‚Å‚È‚¢
 		return false;
@@ -273,8 +286,11 @@ cv::Point HandRecognition::getCentroid(std::vector<cv::Point> contour){
 	return p;
 }
 
-bool HandRecognition::isTurned(){
+bool HandRecognition::isRTurned(){
 	return radian > 1;
+}
+bool HandRecognition::isLTurned(){
+	return radian < -1;
 }
 
 bool* HandRecognition::existFingers(){

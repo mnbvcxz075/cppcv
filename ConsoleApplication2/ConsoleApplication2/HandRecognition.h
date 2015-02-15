@@ -32,7 +32,7 @@ private:
 
 	cv::Point centroid;
 	double radian;
-	double handRad;
+	int trackHand;
 	TimeCounter *tc;
 
 	cv::Mat img;
@@ -72,6 +72,7 @@ private:
 public:
 	bool existHand();
 	POINT getCentroid();
-	bool isTurned();
+	bool isRTurned();
+	bool isLTurned();
 	bool* existFingers();
 };

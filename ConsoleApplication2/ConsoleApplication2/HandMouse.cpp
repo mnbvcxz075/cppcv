@@ -13,7 +13,8 @@ HandMouse::~HandMouse(){
 
 
 void HandMouse::update(){
-	if (!hand->existHand()||!hand->existFingers()[thumb]){
+	
+	if (!hand->existHand()||!hand->mousemouse){
 		privious_point.x = 0;
 		return;
 	}
@@ -21,24 +22,37 @@ void HandMouse::update(){
 		privious_point = hand->getCentroid();
 	}
 	POINT centroid = hand->getCentroid();
-	int move_x = centroid.x - privious_point.x;
-	int move_y = centroid.y - privious_point.y;
-	if (abs(move_x) > max_distance || abs(move_y) > max_distance){
-		privious_point = hand->getCentroid();
-		return;
-	}
-		move_x = move_x > 0 ? std::pow(move_x, 2): -std::pow(move_x, 2) ;
-		move_y = move_y > 0 ? std::pow(move_y, 2) : -std::pow(move_y, 2) ;
-		moveMouse(move_x,move_y);
+	if (hand->existFingers()[thumb]){
 
+		int move_x = centroid.x - privious_point.x;
+		int move_y = centroid.y - privious_point.y;
+		if (abs(move_x) > max_distance || abs(move_y) > max_distance ){
+			privious_point = hand->getCentroid();
+			return;
+		}
+
+		//move_x = abs(std::pow(move_x, 3) / 5) > 25 ? std::pow(move_x, 3) / 5 : move_x > 0 ? 1 : -1;
+		//move_y = abs(std::pow(move_y, 3) / 5) > 25 ? std::pow(move_y, 3) / 5 : move_y > 0 ? 1 : -1;
+		move_x = abs(std::pow(move_x, 3) / 20) > 20 ? std::pow(move_x, 3) / 20 : move_x;
+		move_y = abs(std::pow(move_y, 3) / 20) > 20 ? std::pow(move_y, 3) / 20 : move_y;
+
+		//move_x = move_x > 0 ? std::pow(move_x, 3) / 5 : std::pow(move_x, 3) / 5;
+		//move_y = move_y > 0 ? std::pow(move_y, 3) / 5 : std::pow(move_y, 3) / 5;
+
+		moveMouse(move_x, move_y);
+	}
 	privious_point = centroid;
 
-	if (hand->isTurned()){
-		mouse_event(MOUSEEVENTF_WHEEL, 0, 0, -1, 0);
+	
+	if (hand->isLTurned()){
+		mouse_event(MOUSEEVENTF_WHEEL, 0, 0, 120, 0);
 		std::cout << "turn" << std::endl;
 	}
-
-	
+if (hand->isRTurned()){
+		mouse_event(MOUSEEVENTF_WHEEL, 0, 0, -120, 0);
+		std::cout << "turn" << std::endl;
+	}
+	javascript:void(0);
 	
 	if (!hand->existFingers()[index]&&!isLeftClicked){
 		mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0);

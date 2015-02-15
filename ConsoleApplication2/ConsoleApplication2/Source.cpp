@@ -50,22 +50,25 @@ int main(int argc, char** argv)
 	int timer = timeGetTime();
 	double time = 0;
 	while (cvWaitKey(1) == -1){
-		tc->start("loop");
-		tc->start("time");
+		tc->start("hand");
+		//tc->start("time");
 		hand.update();
+		tc->stop("hand");
+		tc->start("mouse");
 		mouse.update();
-		tc->stop("loop");
-		time = tc->stop("time");
-		Sleep(80 - time>0 ? 80 - time : 1);
+		tc->stop("mouse");
+		//time = tc->stop("time");
+		//Sleep(80 - time>0 ? 80 - time : 1);
 	}
 
-	std::cout << "binarize " << tc->get("binarize", true) << std::endl;
-	std::cout << "findHand " << tc->get("findHand", true) << std::endl;
-	std::cout << "Dist " << tc->get("Dist", true) << std::endl;
-	std::cout << "Moment " << tc->get("Moment", true) << std::endl;
-	std::cout << "inRange " << tc->get("inRange", true) << std::endl;
-	std::cout << "noize " << tc->get("noize", true) << std::endl;
-	std::cout << "loop " << tc->get("loop", true) << std::endl;
+	std::cout << "hand " << tc->get("hand", true) << std::endl;
+	std::cout << "mouse " << tc->get("mouse", true) << std::endl;
+	std::cout << "a " << tc->get("a", true) << std::endl;
+	std::cout << "b " << tc->get("b", true) << std::endl;
+	std::cout << "c " << tc->get("c", true) << std::endl;
+	std::cout << "aa " << tc->get("aa", true) << std::endl;
+	std::cout << "bb " << tc->get("ab", true) << std::endl;
+	std::cout << "ac " << tc->get("ac", true) << std::endl;
 	Sleep(10000);
 	return 0;
 }

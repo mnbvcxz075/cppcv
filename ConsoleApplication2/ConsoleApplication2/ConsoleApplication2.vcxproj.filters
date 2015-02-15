@@ -18,9 +18,6 @@
     <ClCompile Include="Source.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="HandRecognition.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
     <ClCompile Include="HandMouse.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
@@ -36,6 +33,7 @@
     <ClCompile Include="HandLog.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
+    <ClCompile Include="HandRecognition.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="HandRecognition.h">
